@@ -5,6 +5,7 @@ Only processes actual DWG/DXF files with real geometric data
 
 import tempfile
 import os
+import math
 from typing import List, Dict, Any, Optional
 import traceback
 
@@ -61,20 +62,40 @@ class DWGParser:
             return []
 
     def _parse_real_dwg_dxf(self, file_path: str, filename: str) -> List[Dict[str, Any]]:
-        """Parse actual DWG/DXF file using ezdxf"""
+        """Parse actual DWG/DXF file using ezdxf with robust encoding handling"""
         try:
-            # Try to read as DXF first
+            # First, validate the file format and encoding
+            if not self._validate_dwg_dxf_file(file_path, filename):
+                return []
+            
+            # Try to read with different encoding strategies
+            doc = None
+            
+            # Strategy 1: Direct ezdxf read
             try:
                 doc = ezdxf.readfile(file_path)
-                print(f"Successfully opened as DXF: {filename}")
-            except ezdxf.DXFStructureError:
-                # If DXF fails, try DWG
+                print(f"Successfully opened with default encoding: {filename}")
+            except (ezdxf.DXFStructureError, UnicodeDecodeError, ValueError) as e:
+                print(f"Default encoding failed: {str(e)}")
+                
+                # Strategy 2: Try with encoding parameter
                 try:
-                    doc = ezdxf.readfile(file_path)
-                    print(f"Successfully opened as DWG: {filename}")
-                except Exception as e:
-                    print(f"ERROR: Cannot open '{filename}' as DWG/DXF: {str(e)}")
-                    return []
+                    doc = ezdxf.readfile(file_path, encoding='utf-8', errors='ignore')
+                    print(f"Successfully opened with UTF-8 encoding: {filename}")
+                except Exception as e2:
+                    print(f"UTF-8 encoding failed: {str(e2)}")
+                    
+                    # Strategy 3: Try with latin-1 encoding
+                    try:
+                        doc = ezdxf.readfile(file_path, encoding='latin-1', errors='replace')
+                        print(f"Successfully opened with Latin-1 encoding: {filename}")
+                    except Exception as e3:
+                        print(f"All encoding strategies failed: {str(e3)}")
+                        return []
+            
+            if doc is None:
+                print(f"ERROR: Cannot open '{filename}' as DWG/DXF with any encoding strategy")
+                return []
 
             # Extract real geometric entities
             zones = []
@@ -88,16 +109,27 @@ class DWGParser:
                 try:
                     points = list(entity.vertices_in_wcs())
                     if len(points) >= 3:
-                        zone = {
-                            'zone_id': f"lwpoly_{entities_processed}",
-                            'zone_type': self._classify_entity_type(entity),
-                            'points': [(float(p.x), float(p.y)) for p in points],
-                            'area': self._calculate_polygon_area(points),
-                            'layer': entity.dxf.layer if hasattr(entity.dxf, 'layer') else 'Unknown',
-                            'entity_type': 'LWPOLYLINE'
-                        }
-                        zones.append(zone)
-                        entities_processed += 1
+                        # Validate points for numeric values
+                        valid_points = []
+                        for p in points:
+                            try:
+                                x, y = float(p.x), float(p.y)
+                                if not (math.isnan(x) or math.isnan(y) or math.isinf(x) or math.isinf(y)):
+                                    valid_points.append((x, y))
+                            except (ValueError, TypeError):
+                                continue
+                        
+                        if len(valid_points) >= 3:
+                            zone = {
+                                'zone_id': f"lwpoly_{entities_processed}",
+                                'zone_type': self._classify_entity_type(entity),
+                                'points': valid_points,
+                                'area': self._calculate_polygon_area_coords(valid_points),
+                                'layer': self._safe_get_layer(entity),
+                                'entity_type': 'LWPOLYLINE'
+                            }
+                            zones.append(zone)
+                            entities_processed += 1
                 except Exception as e:
                     print(f"Warning: Error processing LWPOLYLINE: {str(e)}")
                     continue
@@ -166,25 +198,40 @@ class DWGParser:
             traceback.print_exc()
             return []
 
+    def _safe_get_layer(self, entity) -> str:
+        """Safely extract layer name from entity"""
+        try:
+            if hasattr(entity, 'dxf') and hasattr(entity.dxf, 'layer'):
+                layer = str(entity.dxf.layer)
+                # Remove any non-printable characters
+                layer = ''.join(char for char in layer if char.isprintable())
+                return layer if layer else 'Unknown'
+        except Exception:
+            pass
+        return 'Unknown'
+
     def _classify_entity_type(self, entity) -> str:
         """Classify entity type based on layer name and properties"""
-        layer_name = entity.dxf.layer.lower() if hasattr(entity.dxf, 'layer') else ''
+        try:
+            layer_name = self._safe_get_layer(entity).lower()
 
-        if 'wall' in layer_name or 'mur' in layer_name:
-            return 'Wall'
-        elif 'door' in layer_name or 'porte' in layer_name:
-            return 'Door'
-        elif 'window' in layer_name or 'fenetre' in layer_name:
-            return 'Window'
-        elif 'kitchen' in layer_name or 'cuisine' in layer_name:
-            return 'Kitchen'
-        elif 'bath' in layer_name or 'salle' in layer_name:
-            return 'Bathroom'
-        elif 'bed' in layer_name or 'chambre' in layer_name:
-            return 'Bedroom'
-        elif 'living' in layer_name or 'salon' in layer_name:
-            return 'Living Room'
-        else:
+            if 'wall' in layer_name or 'mur' in layer_name:
+                return 'Wall'
+            elif 'door' in layer_name or 'porte' in layer_name:
+                return 'Door'
+            elif 'window' in layer_name or 'fenetre' in layer_name:
+                return 'Window'
+            elif 'kitchen' in layer_name or 'cuisine' in layer_name:
+                return 'Kitchen'
+            elif 'bath' in layer_name or 'salle' in layer_name:
+                return 'Bathroom'
+            elif 'bed' in layer_name or 'chambre' in layer_name:
+                return 'Bedroom'
+            elif 'living' in layer_name or 'salon' in layer_name:
+                return 'Living Room'
+            else:
+                return 'Room'
+        except Exception:
             return 'Room'
 
     def _calculate_polygon_area(self, points) -> float:
@@ -287,6 +334,48 @@ class DWGParser:
         except Exception as e:
             print(f"Warning: Error connecting lines to polygons: {str(e)}")
             return []
+
+    def _validate_dwg_dxf_file(self, file_path: str, filename: str) -> bool:
+        """Validate DWG/DXF file format and encoding"""
+        try:
+            with open(file_path, 'rb') as f:
+                # Read first few bytes to check file signature
+                header = f.read(32)
+                
+                # Check for DWG signature
+                if header.startswith(b'AC1'):
+                    print(f"Detected DWG file format: {filename}")
+                    return True
+                
+                # Check for DXF signature (text-based)
+                try:
+                    # Try to decode as text to check for DXF format
+                    f.seek(0)
+                    text_content = f.read(512).decode('utf-8', errors='ignore')
+                    if 'SECTION' in text_content and 'HEADER' in text_content:
+                        print(f"Detected DXF file format: {filename}")
+                        return True
+                except:
+                    pass
+                
+                # Check for common DXF group codes
+                f.seek(0)
+                try:
+                    lines = f.read(1024).decode('utf-8', errors='ignore').split('\n')
+                    for line in lines[:10]:
+                        line = line.strip()
+                        if line in ['0', '2', '9', '10', '20', '30']:
+                            print(f"Found DXF group codes in: {filename}")
+                            return True
+                except:
+                    pass
+                
+                print(f"WARNING: File format not recognized as standard DWG/DXF: {filename}")
+                return False
+                
+        except Exception as e:
+            print(f"ERROR: Cannot validate file '{filename}': {str(e)}")
+            return False
 
     def _points_close(self, p1: tuple, p2: tuple, tolerance: float = 0.1) -> bool:
         """Check if two points are close enough to be considered connected"""
