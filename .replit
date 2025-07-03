@@ -23,3 +23,7 @@ args = "streamlit run apps/streamlit_app.py --server.port 8080 --server.address 
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[[ports]]
+localPort = 8080
+externalPort = 8080
