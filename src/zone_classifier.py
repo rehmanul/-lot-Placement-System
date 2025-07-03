@@ -7,7 +7,6 @@ Identifies walls, entrances, restricted areas from architectural plans
 import numpy as np
 from typing import List, Dict, Any
 from shapely.geometry import Polygon, Point
-import cv2
 
 
 class ZoneClassifier:
