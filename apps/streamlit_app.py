@@ -180,153 +180,68 @@ def run_ilot_analysis(distribution: Dict[str, float], total_area: float, corrido
     except Exception as e:
         st.error(f"❌ Analysis error: {str(e)}")
 
-def show_analysis_interface():
-    """Display analysis results and visualization"""
-    tab1, tab2, tab3, tab4 = st.tabs(["🗺️ Visualization", "📊 Statistics", "🔍 Details", "📄 Export"])
+def create_basic_3d_plot(zones_data):
+    """Create basic 3D plot when advanced visualization fails"""
+    import plotly.graph_objects as go
 
-    with tab1:
-        show_visualization()
-
-    with tab2:
-        show_statistics()
-
-    with tab3:
-        show_detailed_results()
-
-    with tab4:
-        show_export_options()
-
-def show_visualization():
-    """Display the main visualization"""
-    st.subheader("🗺️ Îlot Placement Visualization")
-
-    if not st.session_state.analysis_results:
-        st.info("🎯 Run îlot placement analysis to see visualization")
-        return
-
-    # Visualization controls
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        show_zones = st.checkbox("Show Zones", True)
-    with col2:
-        show_ilots = st.checkbox("Show Îlots", True)
-    with col3:
-        show_corridors = st.checkbox("Show Corridors", True)
-
-    # Create interactive plot
-    fig = create_ilot_visualization(show_zones, show_ilots, show_corridors)
-    st.plotly_chart(fig, use_container_width=True)
-
-    # Zone legend
-    if show_zones:
-        st.subheader("🎨 Zone Legend")
-        classifier = ZoneClassifier()
-        legend = classifier.create_zone_legend()
-
-        legend_cols = st.columns(len(legend))
-        for i, (zone_type, info) in enumerate(legend.items()):
-            with legend_cols[i]:
-                st.markdown(f"""
-                <div style="background-color: {info['color']}; padding: 10px; border-radius: 5px; text-align: center; margin: 5px;">
-                    <strong>{info['label']}</strong><br>
-                    <small>{info['description']}</small>
-                </div>
-                """, unsafe_allow_html=True)
-
-def create_ilot_visualization(show_zones: bool, show_ilots: bool, show_corridors: bool):
-    """Create the main îlot placement visualization"""
     fig = go.Figure()
 
-    # Add zones
-    if show_zones:
-        for i, zone in enumerate(st.session_state.zones):
-            points = zone.get('points', [])
-            if len(points) >= 3:
-                x_coords = [p[0] for p in points] + [points[0][0]]
-                y_coords = [p[1] for p in points] + [points[0][1]]
+    wall_height = 3.0
+    colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57', '#FF9FF3', '#54A0FF']
 
-                zone_type = zone.get('zone_type', 'AVAILABLE')
-                classifier = ZoneClassifier()
-                color = classifier._get_zone_color(zone_type)
+    for i, zone in enumerate(zones_data):
+        points = zone.get('points', [])
+        if len(points) < 3:
+            continue
 
-                fig.add_trace(go.Scatter(
-                    x=x_coords,
-                    y=y_coords,
-                    fill="toself",
-                    mode='lines',
-                    name=f'{zone_type}' if i == 0 else None,
-                    showlegend=(i == 0),
-                    fillcolor=color,
-                    line=dict(color='black', width=1),
-                    hovertemplate=f"<b>Zone {i}</b><br>Type: {zone_type}<br>Area: {zone.get('area', 0):.1f} m²<extra></extra>"
-                ))
+        x_coords = [p[0] for p in points] + [points[0][0]]
+        y_coords = [p[1] for p in points] + [points[0][1]]
+        color = colors[i % len(colors)]
 
-    # Add îlots
-    if show_ilots and 'placed_ilots' in st.session_state.analysis_results:
-        ilots = st.session_state.analysis_results['placed_ilots']
+        # Floor
+        fig.add_trace(go.Scatter3d(
+            x=x_coords, y=y_coords, z=[0] * len(x_coords),
+            mode='lines',
+            line=dict(color=color, width=8),
+            name=f'Floor - Zone {i+1}',
+            showlegend=True
+        ))
 
-        # Color by size range
-        size_colors = {
-            '0-1': 'rgba(255, 200, 0, 0.8)',    # Yellow
-            '1-3': 'rgba(0, 255, 0, 0.8)',      # Green
-            '3-5': 'rgba(0, 150, 255, 0.8)',    # Blue
-            '5-10': 'rgba(255, 0, 150, 0.8)'    # Magenta
-        }
+        # Ceiling
+        fig.add_trace(go.Scatter3d(
+            x=x_coords, y=y_coords, z=[wall_height] * len(x_coords),
+            mode='lines',
+            line=dict(color=color, width=6),
+            name=f'Ceiling - Zone {i+1}',
+            showlegend=False
+        ))
 
-        for ilot in ilots:
-            bounds = ilot['bounds']
-            x_coords = [bounds[0], bounds[2], bounds[2], bounds[0], bounds[0]]
-            y_coords = [bounds[1], bounds[1], bounds[3], bounds[3], bounds[1]]
-
-            size_range = ilot.get('size_range', 'unknown')
-            color = size_colors.get(size_range, 'rgba(128, 128, 128, 0.8)')
-
-            fig.add_trace(go.Scatter(
-                x=x_coords,
-                y=y_coords,
-                fill="toself",
+        # Walls (vertical lines)
+        for j in range(len(points)):
+            fig.add_trace(go.Scatter3d(
+                x=[points[j][0], points[j][0]],
+                y=[points[j][1], points[j][1]], 
+                z=[0, wall_height],
                 mode='lines',
-                name=f'Îlots {size_range} m²' if size_range not in [trace.name for trace in fig.data] else None,
-                fillcolor=color,
-                line=dict(color='darkred', width=2),
-                hovertemplate=f"<b>Îlot {ilot['id']}</b><br>Size: {size_range} m²<br>Area: {ilot['area']:.2f} m²<extra></extra>"
-            ))
-
-    # Add corridors
-    if show_corridors and 'corridors' in st.session_state.analysis_results:
-        corridors = st.session_state.analysis_results['corridors']
-
-        for corridor in corridors:
-            bounds = corridor['bounds']
-            x_coords = [bounds[0], bounds[2], bounds[2], bounds[0], bounds[0]]
-            y_coords = [bounds[1], bounds[1], bounds[3], bounds[3], bounds[1]]
-
-            fig.add_trace(go.Scatter(
-                x=x_coords,
-                y=y_coords,
-                fill="toself",
-                mode='lines',
-                name='Corridors' if corridor == corridors[0] else None,
-                showlegend=(corridor == corridors[0]),
-                fillcolor='rgba(150, 75, 0, 0.6)',  # Brown
-                line=dict(color='brown', width=2),
-                hovertemplate=f"<b>Corridor</b><br>Width: {corridor['width']:.1f} m<br>Length: {corridor['length']:.1f} m<extra></extra>"
+                line=dict(color=color, width=4),
+                showlegend=False
             ))
 
     fig.update_layout(
-        title="Enterprise Îlot Placement Results",
-        xaxis_title="X Coordinate (m)",
-        yaxis_title="Y Coordinate (m)",
-        hovermode='closest',
-        height=600,
-        xaxis=dict(scaleanchor="y", scaleratio=1),
-        yaxis=dict(scaleanchor="x", scaleratio=1)
+        title="🌐 3D Building Model",
+        scene=dict(
+            xaxis_title="X (meters)",
+            yaxis_title="Y (meters)",
+            zaxis_title="Z (meters)",
+            camera=dict(eye=dict(x=1.5, y=1.5, z=1.2))
+        ),
+        height=600
     )
 
-    return fig
+    st.plotly_chart(fig, use_container_width=True)
 
-def show_statistics():
-    """Display placement statistics"""
+def display_statistics(results):
+    """Display detailed statistics with fixed Plotly configuration"""
     st.subheader("📊 Placement Statistics")
 
     if not st.session_state.analysis_results:
@@ -377,50 +292,7 @@ def show_statistics():
 
         st.plotly_chart(fig, use_container_width=True)
 
-def show_detailed_results():
-    """Show detailed analysis results"""
-    st.subheader("🔍 Detailed Results")
-
-    if not st.session_state.analysis_results:
-        st.info("🎯 Run îlot placement analysis to see detailed results")
-        return
-
-    results = st.session_state.analysis_results
-
-    # Validation results
-    if 'validation' in results:
-        validation = results['validation']
-
-        if validation['is_valid']:
-            st.success("✅ All placement constraints satisfied")
-        else:
-            st.warning(f"⚠️ {validation['total_violations']} constraint violations found")
-
-            if validation['violations']:
-                st.subheader("Constraint Violations:")
-                for violation in validation['violations']:
-                    st.error(f"- {violation['type']}: {violation}")
-
-    # Îlot details table
-    if 'placed_ilots' in results:
-        st.subheader("📋 Placed Îlots")
-
-        ilots_data = []
-        for ilot in results['placed_ilots']:
-            ilots_data.append({
-                'ID': ilot['id'],
-                'Size Range': ilot['size_range'],
-                'Area (m²)': f"{ilot['area']:.2f}",
-                'Position X': f"{ilot['position'][0]:.1f}",
-                'Position Y': f"{ilot['position'][1]:.1f}",
-                'Width': f"{ilot['width']:.2f}",
-                'Height': f"{ilot['height']:.2f}"
-            })
-
-        df = pd.DataFrame(ilots_data)
-        st.dataframe(df, use_container_width=True)
-
-def show_export_options():
+def display_reports_section(analysis_results, zones_data):
     """Show export and download options"""
     st.subheader("📄 Export Options")
 
@@ -450,6 +322,102 @@ def show_export_options():
                 file_name="ilot_placement_visualization.html",
                 mime="text/html"
             )
+
+def display_settings_section():
+    """Display settings and configurations"""
+    st.subheader("⚙️ Settings")
+    st.write("Configure advanced settings here (under development)")
+
+def show_analysis_interface():
+    """Display analysis results and visualization"""
+    zones_data = st.session_state.zones
+    analysis_results = st.session_state.analysis_results
+
+    # Create tabs for different views
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+        "📊 Analysis Dashboard", 
+        "🎯 Interactive Plan", 
+        "🌐 3D Visualization",
+        "📈 Statistics", 
+        "📄 Reports",
+        "⚙️ Settings"
+    ])
+
+    with tab1:
+        st.subheader("📊 Analysis Dashboard")
+        if analysis_results:
+            st.write("General analysis and key performance indicators.")
+        else:
+            st.info("Upload and analyze a DWG/DXF file to see the analysis dashboard")
+
+    with tab2:
+        st.subheader("🎯 Interactive Plan")
+        if zones_data:
+            show_visualization()
+        else:
+            st.info("Upload and analyze a DWG/DXF file to see the interactive plan")
+
+    with tab3:
+        st.subheader("🌐 3D Building Visualization")
+
+        if zones_data:
+            # 3D visualization controls
+            col1, col2, col3 = st.columns(3)
+
+            with col1:
+                view_type = st.selectbox("3D View Type", [
+                    "🏢 Building Model",
+                    "🏗️ Construction View", 
+                    "📐 Architectural Plan",
+                    "🔧 Structural Frame"
+                ])
+
+            with col2:
+                wall_height = st.slider("Wall Height (m)", 2.5, 5.0, 3.0, 0.1)
+
+            with col3:
+                show_furniture = st.checkbox("Show Furniture", True)
+
+            # Create 3D visualization
+            try:
+                from src.advanced_visualization import AdvancedVisualizer
+                visualizer = AdvancedVisualizer()
+
+                if view_type == "🏢 Building Model":
+                    fig_3d = visualizer.create_advanced_3d_model(zones_data, analysis_results, show_furniture, wall_height)
+                elif view_type == "🏗️ Construction View":
+                    fig_3d = visualizer.create_construction_plan_3d(zones_data, True)
+                elif view_type == "📐 Architectural Plan":
+                    fig_3d = visualizer.create_architectural_plan_3d(zones_data)
+                else:  # Structural Frame
+                    fig_3d = visualizer.create_structural_plan_3d(zones_data)
+
+                st.plotly_chart(fig_3d, use_container_width=True, height=700)
+
+                # 3D Model Information
+                st.info(f"🌐 **3D Model Generated**: {len(zones_data)} zones rendered in 3D with {wall_height}m walls")
+
+            except Exception as e:
+                st.error(f"3D visualization error: {str(e)}")
+                # Fallback basic 3D
+                create_basic_3d_plot(zones_data)
+        else:
+            st.info("Upload and analyze a DWG/DXF file to see 3D visualization")
+
+    with tab4:
+        if analysis_results:
+            display_statistics(analysis_results)
+        else:
+            st.info("Upload and analyze a DWG/DXF file to see statistics")
+
+    with tab5:
+        if analysis_results:
+            display_reports_section(analysis_results, zones_data)
+        else:
+            st.info("Upload and analyze a DWG/DXF file to generate reports")
+
+    with tab6:
+        display_settings_section()
 
 if __name__ == "__main__":
     main()
