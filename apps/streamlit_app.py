@@ -282,7 +282,7 @@ def create_ilot_visualization(show_zones: bool, show_ilots: bool, show_corridors
                 y=y_coords,
                 fill="toself",
                 mode='lines',
-                name=f'Îlots {size_range} m²' if size_range not in [trace.name for trace in fig.data],
+                name=f'Îlots {size_range} m²' if size_range not in [trace.name for trace in fig.data] else None,
                 fillcolor=color,
                 line=dict(color='darkred', width=2),
                 hovertemplate=f"<b>Îlot {ilot['id']}</b><br>Size: {size_range} m²<br>Area: {ilot['area']:.2f} m²<extra></extra>"
