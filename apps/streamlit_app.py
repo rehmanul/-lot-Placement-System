@@ -15,6 +15,10 @@ from typing import List, Dict, Any
 import json
 
 # Import our specialized modules
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from src.dwg_parser import DWGParser
 from src.ilot_placement_engine import IlotPlacementEngine
 from src.zone_classifier import ZoneClassifier
