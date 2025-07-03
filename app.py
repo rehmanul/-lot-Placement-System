@@ -24,6 +24,7 @@ from reportlab.lib.pagesizes import letter, A4
 from reportlab.lib.colors import red, blue, black, green, orange, purple
 from reportlab.lib.units import inch
 import base64
+from dwg_parser import DWGParser
 
 # Page configuration
 st.set_page_config(
@@ -620,7 +621,7 @@ class EnterpriseIlotPlacementSystem:
             ilot_polygon = box(x, y, x + side_length, y + side_length)
 
             # Check if placement is valid
-            if self._is_valid_placement(ilot_polygon, existing_ilots):
+            if self._is_valid_placement(ilot_polygon, existing_ilots)):
                 return ilot_polygon
 
         return None
@@ -1060,6 +1061,7 @@ def main():
                         st.write("• The file may be corrupted or use an unsupported encoding")
                         st.write("• Try saving the file in a different CAD program")
                         st.write("• Ensure the file is a valid DWG or DXF format")
+                        st.write("• Check if the file contains geometric data (lines, polylines, etc.)")
                         st.write("• Check if the file contains geometric data (lines, polylines, etc.)")
 
                         with st.expander("🔧 Technical Details"):
