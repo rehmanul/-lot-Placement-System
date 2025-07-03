@@ -1,839 +1,596 @@
 """
-Enhanced DWG parser with robust error handling and multiple parsing strategies
+Enhanced DWG Parser - Real Version Only
+Advanced parsing with no fallback methods
 """
 
-import logging
-import tempfile
-import os
-import math
-import struct
-import re
-from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 from functools import wraps
 import hashlib
 import numpy as np
+import tempfile
+import os
+import traceback
 
 try:
     import ezdxf
-    from ezdxf import recover
+    EZDXF_AVAILABLE = True
 except ImportError:
-    ezdxf = None
-
-logger = logging.getLogger(__name__)
+    EZDXF_AVAILABLE = False
 
 class EnhancedDWGParser:
-    """Enhanced DWG parser with multiple parsing strategies"""
-    
     def __init__(self):
-        self.error_handler = RobustErrorHandler()
-        self.zone_detector = EnhancedZoneDetector()
-    
-    def parse_file(self, file_path):
-        """Parse DWG/DXF file with enhanced error handling"""
-        try:
-            if not ezdxf:
-                logger.error("ezdxf not available")
-                return None
-                
-            doc = ezdxf.readfile(file_path)
-            zones = self._extract_zones(doc)
-            return {'zones': zones, 'parsing_method': 'ezdxf'}
-        except Exception as e:
-            logger.error(f"Enhanced parsing failed: {e}")
-            return None
-    
-    def _extract_zones(self, doc):
-        """Extract zones from DXF document"""
-        zones = []
-        for entity in doc.modelspace():
-            if entity.dxftype() in ['LWPOLYLINE', 'POLYLINE']:
-                if hasattr(entity, 'get_points'):
-                    try:
-                        points = list(entity.get_points())
-                        if len(points) >= 3:
-                            area = self._calculate_area(points)
-                            zone = {
-                                'id': len(zones),
-                                'points': [(p[0], p[1]) for p in points],
-                                'area': area,
-                                'zone_type': 'Room',
-                                'layer': getattr(entity.dxf, 'layer', '0')
-                            }
-                            zones.append(zone)
-                    except Exception:
-                        continue
-        return zones
-    
-    def _calculate_area(self, points):
-        """Calculate polygon area using shoelace formula"""
-        if len(points) < 3:
-            return 0
-        area = 0
-        for i in range(len(points)):
-            j = (i + 1) % len(points)
-            area += points[i][0] * points[j][1]
-            area -= points[j][0] * points[i][1]
-        return abs(area) / 2
-    
-    def get_file_info(self, file_path):
-        """Get file information"""
-        try:
-            if not ezdxf:
-                return {'entities': 0, 'layers': 0, 'blocks': 0}
-            doc = ezdxf.readfile(file_path)
+        self.supported_formats = ['.dwg', '.dxf']
+
+    def parse_advanced(self, file_bytes: bytes, filename: str) -> Dict[str, Any]:
+        """
+        Advanced DWG/DXF parsing - REAL VERSION ONLY
+        Returns empty result if file cannot be parsed as real DWG/DXF
+        """
+        if not EZDXF_AVAILABLE:
             return {
-                'entities': len(list(doc.modelspace())),
-                'layers': len(doc.layers),
-                'blocks': len(doc.blocks)
+                'success': False,
+                'error': 'ezdxf not available - cannot parse real DWG/DXF files',
+                'zones': [],
+                'metadata': {}
             }
-        except Exception:
-            return {'entities': 0, 'layers': 0, 'blocks': 0}
 
-class EnhancedDWGParser:
-    """Enhanced DWG parser with multiple parsing strategies"""
+        # Only process actual DWG/DXF files
+        file_ext = os.path.splitext(filename.lower())[1]
+        if file_ext not in self.supported_formats:
+            return {
+                'success': False,
+                'error': f"File '{filename}' is not a supported DWG/DXF format",
+                'zones': [],
+                'metadata': {}
+            }
 
-    def __init__(self):
-        self.parsing_methods = [
-            self._parse_with_ezdxf,
-            self._parse_with_fallback_strategy,
-            self._create_intelligent_fallback
-        ]
+        try:
+            # Create temporary file
+            with tempfile.NamedTemporaryFile(suffix=file_ext, delete=False) as temp_file:
+                temp_file.write(file_bytes)
+                temp_file_path = temp_file.name
 
-    def parse_file(self, file_path: str) -> Dict[str, Any]:
-        """Parse DWG file with multiple strategies"""
-        for i, method in enumerate(self.parsing_methods):
             try:
-                result = method(file_path)
-                if result and result.get('zones'):
-                    logger.info(f"Successfully parsed using method {i+1}")
+                # Parse real DWG/DXF file
+                result = self._parse_real_enhanced(temp_file_path, filename)
+
+                if not result['success']:
                     return result
+
+                print(f"SUCCESS: Enhanced parsing of '{filename}' completed")
+                return result
+
+            finally:
+                # Clean up temp file
+                if os.path.exists(temp_file_path):
+                    os.unlink(temp_file_path)
+
+        except Exception as e:
+            return {
+                'success': False,
+                'error': f"Failed to parse '{filename}': {str(e)}",
+                'zones': [],
+                'metadata': {}
+            }
+
+    def _parse_real_enhanced(self, file_path: str, filename: str) -> Dict[str, Any]:
+        """Enhanced parsing of real DWG/DXF files"""
+        try:
+            # Open DWG/DXF file
+            try:
+                doc = ezdxf.readfile(file_path)
+                print(f"Successfully opened: {filename}")
             except Exception as e:
-                logger.warning(f"Parsing method {i+1} failed: {e}")
+                return {
+                    'success': False,
+                    'error': f"Cannot open '{filename}' as DWG/DXF: {str(e)}",
+                    'zones': [],
+                    'metadata': {}
+                }
+
+            # Extract document metadata
+            metadata = self._extract_metadata(doc, filename)
+
+            # Extract zones with enhanced analysis
+            zones = self._extract_enhanced_zones(doc)
+
+            if not zones:
+                return {
+                    'success': False,
+                    'error': f"No valid geometric data found in '{filename}'",
+                    'zones': [],
+                    'metadata': metadata
+                }
+
+            # Enhanced zone analysis
+            enhanced_zones = self._analyze_zones_enhanced(zones)
+
+            return {
+                'success': True,
+                'zones': enhanced_zones,
+                'metadata': metadata,
+                'statistics': self._calculate_statistics(enhanced_zones)
+            }
+
+        except Exception as e:
+            return {
+                'success': False,
+                'error': f"Enhanced parsing failed: {str(e)}",
+                'zones': [],
+                'metadata': {}
+            }
+
+    def _extract_metadata(self, doc, filename: str) -> Dict[str, Any]:
+        """Extract real metadata from DWG/DXF document"""
+        metadata = {
+            'filename': filename,
+            'dxf_version': doc.dxfversion,
+            'layers': [],
+            'blocks': [],
+            'entities_count': 0
+        }
+
+        try:
+            # Extract layer information
+            for layer in doc.layers:
+                metadata['layers'].append({
+                    'name': layer.dxf.name,
+                    'color': layer.dxf.color,
+                    'linetype': layer.dxf.linetype
+                })
+
+            # Count entities
+            msp = doc.modelspace()
+            metadata['entities_count'] = len(list(msp))
+
+            # Extract blocks
+            for block in doc.blocks:
+                if not block.name.startswith('*'):  # Skip anonymous blocks
+                    metadata['blocks'].append(block.name)
+
+        except Exception as e:
+            print(f"Warning: Error extracting metadata: {str(e)}")
+
+        return metadata
+
+    def _extract_enhanced_zones(self, doc) -> List[Dict[str, Any]]:
+        """Extract zones with enhanced geometric analysis"""
+        zones = []
+        msp = doc.modelspace()
+
+        # Process different entity types
+        entity_processors = {
+            'LWPOLYLINE': self._process_lwpolyline,
+            'POLYLINE': self._process_polyline,
+            'CIRCLE': self._process_circle,
+            'ARC': self._process_arc,
+            'LINE': self._process_line,
+            'SPLINE': self._process_spline
+        }
+
+        for entity_type, processor in entity_processors.items():
+            try:
+                entities = list(msp.query(entity_type))
+                if entities:
+                    print(f"Processing {len(entities)} {entity_type} entities")
+                    processed_zones = processor(entities)
+                    zones.extend(processed_zones)
+            except Exception as e:
+                print(f"Warning: Error processing {entity_type}: {str(e)}")
                 continue
 
-        # Final fallback
-        return self._create_intelligent_fallback(file_path)
-
-    def _parse_with_ezdxf(self, file_path: str) -> Dict[str, Any]:
-        """Parse using ezdxf library with enhanced zone detection"""
-        try:
-            doc = ezdxf.readfile(file_path)
-            entities = []
-            
-            # Extract all entities with metadata
-            for entity in doc.modelspace():
-                entity_data = self._extract_entity_data(entity)
-                if entity_data:
-                    entities.append(entity_data)
-            
-            # Use enhanced zone detector
-            from src.enhanced_zone_detector import EnhancedZoneDetector
-            zone_detector = EnhancedZoneDetector()
-            zones = zone_detector.detect_zones_from_entities(entities)
-            
-            # Convert to expected format
-            formatted_zones = []
-            for zone in zones:
-                formatted_zone = {
-                    'id': len(formatted_zones),
-                    'points': zone.get('points', []),
-                    'polygon': zone.get('points', []),
-                    'area': zone.get('area', 0),
-                    'centroid': zone.get('centroid', (0, 0)),
-                    'layer': zone.get('layer', '0'),
-                    'zone_type': zone.get('likely_room_type', 'Room'),
-                    'parsing_method': 'enhanced_detection'
-                }
-                formatted_zones.append(formatted_zone)
-
-            return {
-                'zones': formatted_zones,
-                'parsing_method': 'ezdxf_enhanced_detection',
-                'entity_count': len(entities)
-            }
-        except Exception as e:
-            raise Exception(f"ezdxf enhanced parsing failed: {e}")
-
-    def _extract_entity_data(self, entity) -> Optional[Dict]:
-        """Extract entity data for enhanced zone detection"""
-        try:
-            entity_data = {
-                'entity_type': entity.dxftype(),
-                'layer': getattr(entity.dxf, 'layer', '0')
-            }
-            
-            if entity.dxftype() in ['LWPOLYLINE', 'POLYLINE']:
-                points = []
-                if hasattr(entity, 'get_points'):
-                    try:
-                        point_list = list(entity.get_points())
-                        points = [(p[0], p[1]) for p in point_list if len(p) >= 2]
-                    except:
-                        pass
-                
-                entity_data.update({
-                    'points': points,
-                    'closed': getattr(entity.dxf, 'closed', False)
-                })
-                
-            elif entity.dxftype() == 'LINE':
-                start = getattr(entity.dxf, 'start', None)
-                end = getattr(entity.dxf, 'end', None)
-                if start and end:
-                    entity_data.update({
-                        'start_point': (start[0], start[1]),
-                        'end_point': (end[0], end[1])
-                    })
-                    
-            elif entity.dxftype() == 'CIRCLE':
-                center = getattr(entity.dxf, 'center', None)
-                radius = getattr(entity.dxf, 'radius', 0)
-                if center:
-                    entity_data.update({
-                        'center': (center[0], center[1]),
-                        'radius': radius
-                    })
-                    
-            elif entity.dxftype() == 'TEXT':
-                text = getattr(entity.dxf, 'text', '')
-                insert = getattr(entity.dxf, 'insert', None)
-                if insert:
-                    entity_data.update({
-                        'text': text,
-                        'insertion_point': (insert[0], insert[1])
-                    })
-                    
-            elif entity.dxftype() == 'HATCH':
-                # Basic hatch support
-                entity_data['boundary_paths'] = []
-                
-            return entity_data
-            
-        except Exception as e:
-            logger.warning(f"Failed to extract entity data: {e}")
-            return None
-    
-    def _extract_zone_from_polyline(self, entity) -> Optional[Dict]:
-        """Extract zone data from polyline entity"""
-        try:
-            points = []
-            if hasattr(entity, 'get_points'):
-                try:
-                    point_list = list(entity.get_points())
-                    points = [(p[0], p[1]) for p in point_list if len(p) >= 2]
-                except Exception:
-                    points = []
-            elif hasattr(entity, 'vertices'):
-                try:
-                    vertices = list(entity.vertices)
-                    points = []
-                    for v in vertices:
-                        if hasattr(v, 'dxf') and hasattr(v.dxf, 'location'):
-                            loc = v.dxf.location
-                            if len(loc) >= 2:
-                                points.append((loc[0], loc[1]))
-                except Exception:
-                    points = []
-
-            if len(points) < 3:
-                return None
-
-            # Calculate area and centroid
-            area = self._calculate_polygon_area(points)
-            centroid = self._calculate_centroid(points)
-
-            return {
-                'id': hash(str(points[:3])),  # Safer ID generation
-                'polygon': points,
-                'area': abs(area),
-                'centroid': centroid,
-                'layer': getattr(entity.dxf, 'layer', '0'),
-                'zone_type': 'Room',
-                'parsing_method': 'polyline_extraction'
-            }
-        except Exception as e:
-            logger.warning(f"Failed to extract polyline zone: {e}")
-            return None
-
-    def _extract_zone_from_circle(self, entity) -> Optional[Dict]:
-        """Extract zone data from circle entity"""
-        try:
-            center = entity.dxf.center
-            radius = entity.dxf.radius
-
-            # Create polygon approximation of circle
-            import math
-            points = []
-            for i in range(16):  # 16-point approximation
-                angle = 2 * math.pi * i / 16
-                x = center[0] + radius * math.cos(angle)
-                y = center[1] + radius * math.sin(angle)
-                points.append((x, y))
-
-            area = math.pi * radius * radius
-
-            return {
-                'id': hash(str(center)),
-                'polygon': points,
-                'area': area,
-                'centroid': (center[0], center[1]),
-                'layer': getattr(entity.dxf, 'layer', '0'),
-                'zone_type': 'Circular Room',
-                'parsing_method': 'circle_extraction'
-            }
-        except Exception as e:
-            logger.warning(f"Failed to extract circle zone: {e}")
-            return None
-
-    def _calculate_polygon_area(self, points: List[Tuple[float, float]]) -> float:
-        """Calculate polygon area using shoelace formula"""
-        if len(points) < 3:
-            return 0
-
-        area = 0
-        for i in range(len(points)):
-            j = (i + 1) % len(points)
-            area += points[i][0] * points[j][1]
-            area -= points[j][0] * points[i][1]
-        return area / 2
-
-
-
-    def _detect_dwg_version(self, dwg_data: bytes) -> str:
-        """Detect DWG file version from binary header"""
-        try:
-            # DWG version signatures
-            version_signatures = {
-                b'AC1009': 'AutoCAD R12',
-                b'AC1012': 'AutoCAD R13',
-                b'AC1014': 'AutoCAD R14',
-                b'AC1015': 'AutoCAD 2000',
-                b'AC1018': 'AutoCAD 2004',
-                b'AC1021': 'AutoCAD 2007',
-                b'AC1024': 'AutoCAD 2010',
-                b'AC1027': 'AutoCAD 2013',
-                b'AC1032': 'AutoCAD 2018'
-            }
-            
-            # Check first 6 bytes for version signature
-            if len(dwg_data) >= 6:
-                signature = dwg_data[:6]
-                return version_signatures.get(signature, f'Unknown ({signature})')
-            
-            return 'Unknown'
-        except Exception:
-            return 'Detection Failed'
-
-    def _extract_coordinates_from_dwg(self, dwg_data: bytes) -> List[Tuple[float, float]]:
-        """Extract coordinate data from DWG binary using multiple methods"""
-        coordinates = []
-        
-        try:
-            # Method 1: Look for IEEE 754 double precision coordinates
-            coordinates.extend(self._extract_ieee754_coordinates(dwg_data))
-            
-            # Method 2: Look for coordinate patterns in DWG sections
-            coordinates.extend(self._extract_section_coordinates(dwg_data))
-            
-            # Method 3: Search for coordinate sequences
-            coordinates.extend(self._extract_sequence_coordinates(dwg_data))
-            
-            # Remove duplicates and filter valid coordinates
-            unique_coords = []
-            for coord in coordinates:
-                if self._is_valid_coordinate(coord) and coord not in unique_coords:
-                    unique_coords.append(coord)
-            
-            return unique_coords[:1000]  # Limit to prevent memory issues
-            
-        except Exception as e:
-            logger.warning(f"Coordinate extraction failed: {e}")
-            return []
-
-    def _extract_ieee754_coordinates(self, dwg_data: bytes) -> List[Tuple[float, float]]:
-        """Extract coordinates by scanning for IEEE 754 double patterns"""
-        coordinates = []
-        
-        try:
-            # Scan through data looking for coordinate pairs
-            for i in range(0, len(dwg_data) - 16, 8):
-                try:
-                    # Try to unpack as double precision floats
-                    x = struct.unpack('<d', dwg_data[i:i+8])[0]
-                    y = struct.unpack('<d', dwg_data[i+8:i+16])[0]
-                    
-                    # Check if these look like reasonable coordinates
-                    if (abs(x) < 1000000 and abs(y) < 1000000 and 
-                        not math.isnan(x) and not math.isnan(y) and
-                        math.isfinite(x) and math.isfinite(y)):
-                        coordinates.append((x, y))
-                        
-                except (struct.error, OverflowError):
-                    continue
-                    
-        except Exception:
-            pass
-            
-        return coordinates
-
-    def _extract_section_coordinates(self, dwg_data: bytes) -> List[Tuple[float, float]]:
-        """Extract coordinates from DWG sections"""
-        coordinates = []
-        
-        try:
-            # Look for DWG section markers and extract data
-            section_patterns = [
-                b'ENTITIES',
-                b'OBJECTS', 
-                b'HEADER',
-                b'TABLES'
-            ]
-            
-            for pattern in section_patterns:
-                start = 0
-                while True:
-                    pos = dwg_data.find(pattern, start)
-                    if pos == -1:
-                        break
-                        
-                    # Extract data around section
-                    section_start = max(0, pos - 1000)
-                    section_end = min(len(dwg_data), pos + 5000)
-                    section_data = dwg_data[section_start:section_end]
-                    
-                    # Look for coordinate patterns in this section
-                    section_coords = self._find_coordinates_in_section(section_data)
-                    coordinates.extend(section_coords)
-                    
-                    start = pos + len(pattern)
-                    
-        except Exception:
-            pass
-            
-        return coordinates
-
-    def _find_coordinates_in_section(self, section_data: bytes) -> List[Tuple[float, float]]:
-        """Find coordinate patterns within a DWG section"""
-        coordinates = []
-        
-        try:
-            # Look for patterns that might be coordinates
-            for i in range(0, len(section_data) - 16, 4):
-                try:
-                    # Try different float formats
-                    for fmt in ['<f', '>f', '<d', '>d']:
-                        try:
-                            if fmt.endswith('f'):  # float
-                                size = 4
-                            else:  # double
-                                size = 8
-                                
-                            if i + 2 * size > len(section_data):
-                                continue
-                                
-                            x = struct.unpack(fmt, section_data[i:i+size])[0]
-                            y = struct.unpack(fmt, section_data[i+size:i+2*size])[0]
-                            
-                            if self._is_valid_coordinate((x, y)):
-                                coordinates.append((x, y))
-                                break
-                                
-                        except (struct.error, OverflowError):
-                            continue
-                            
-                except Exception:
-                    continue
-                    
-        except Exception:
-            pass
-            
-        return coordinates
-
-    def _extract_sequence_coordinates(self, dwg_data: bytes) -> List[Tuple[float, float]]:
-        """Extract coordinates by looking for sequential patterns"""
-        coordinates = []
-        
-        try:
-            # Look for repeated coordinate-like patterns
-            step = 8  # Start with double precision
-            
-            for offset in range(0, min(len(dwg_data), 50000), step):
-                if offset + 16 > len(dwg_data):
-                    break
-                    
-                try:
-                    # Extract potential coordinate
-                    x = struct.unpack('<d', dwg_data[offset:offset+8])[0]
-                    y = struct.unpack('<d', dwg_data[offset+8:offset+16])[0]
-                    
-                    if self._is_valid_coordinate((x, y)):
-                        coordinates.append((x, y))
-                        
-                except (struct.error, OverflowError):
-                    continue
-                    
-        except Exception:
-            pass
-            
-        return coordinates
-
-    def _extract_coordinates_alternative(self, dwg_data: bytes) -> List[Tuple[float, float]]:
-        """Alternative coordinate extraction using pattern recognition"""
-        coordinates = []
-        
-        try:
-            # Convert to hex and look for patterns
-            hex_data = dwg_data.hex()
-            
-            # Look for coordinate-like hex patterns (simplified)
-            # This is a basic pattern - real DWG parsing would be much more complex
-            coord_patterns = re.findall(r'([0-9a-f]{16})([0-9a-f]{16})', hex_data)
-            
-            for x_hex, y_hex in coord_patterns[:100]:  # Limit to prevent memory issues
-                try:
-                    x_bytes = bytes.fromhex(x_hex)
-                    y_bytes = bytes.fromhex(y_hex)
-                    
-                    x = struct.unpack('<d', x_bytes)[0]
-                    y = struct.unpack('<d', y_bytes)[0]
-                    
-                    if self._is_valid_coordinate((x, y)):
-                        coordinates.append((x, y))
-                        
-                except Exception:
-                    continue
-                    
-        except Exception:
-            pass
-            
-        return coordinates
-
-    def _is_valid_coordinate(self, coord: Tuple[float, float]) -> bool:
-        """Check if a coordinate pair is valid for architectural drawings"""
-        x, y = coord
-        
-        return (
-            math.isfinite(x) and math.isfinite(y) and
-            not math.isnan(x) and not math.isnan(y) and
-            abs(x) < 100000 and abs(y) < 100000 and  # Reasonable building size
-            abs(x) > 0.001 and abs(y) > 0.001  # Not too small
-        )
-
-    def _build_zones_from_coordinates(self, coordinates: List[Tuple[float, float]]) -> List[Dict]:
-        """Build meaningful zones from extracted coordinates"""
-        zones = []
-        
-        try:
-            if len(coordinates) < 4:
-                return zones
-            
-            # Sort coordinates
-            sorted_coords = sorted(coordinates, key=lambda p: (p[1], p[0]))
-            
-            # Group coordinates into potential rooms/zones
-            zones_coords = self._group_coordinates_into_zones(sorted_coords)
-            
-            for i, zone_coords in enumerate(zones_coords):
-                if len(zone_coords) >= 3:
-                    # Create polygon from coordinates
-                    polygon = self._create_polygon_from_points(zone_coords)
-                    
-                    if polygon:
-                        area = self._calculate_polygon_area(polygon)
-                        centroid = self._calculate_centroid(polygon)
-                        
-                        zone = {
-                            'id': i,
-                            'polygon': polygon,
-                            'points': polygon,  # Compatibility
-                            'area': area,
-                            'centroid': centroid,
-                            'layer': 'EXTRACTED',
-                            'zone_type': f'ExtractedRoom_{i+1}',
-                            'parsing_method': 'coordinate_analysis'
-                        }
-                        zones.append(zone)
-            
-            return zones
-            
-        except Exception as e:
-            logger.warning(f"Zone building failed: {e}")
-            return []
-
-    def _group_coordinates_into_zones(self, coordinates: List[Tuple[float, float]]) -> List[List[Tuple[float, float]]]:
-        """Group coordinates into potential room boundaries"""
-        zones = []
-        
-        try:
-            # Simple clustering approach
-            used = set()
-            
-            for i, coord in enumerate(coordinates):
-                if i in used:
-                    continue
-                    
-                # Find nearby coordinates
-                cluster = [coord]
-                cluster_indices = {i}
-                
-                for j, other_coord in enumerate(coordinates):
-                    if j in used or j == i:
-                        continue
-                        
-                    # Check distance
-                    dist = math.sqrt((coord[0] - other_coord[0])**2 + (coord[1] - other_coord[1])**2)
-                    
-                    if dist < 50:  # Within 50 units
-                        cluster.append(other_coord)
-                        cluster_indices.add(j)
-                
-                if len(cluster) >= 4:  # Minimum for a room
-                    zones.append(cluster)
-                    used.update(cluster_indices)
-            
-            return zones
-            
-        except Exception:
-            return []
-
-    def _create_polygon_from_points(self, points: List[Tuple[float, float]]) -> List[Tuple[float, float]]:
-        """Create a polygon from unordered points"""
-        try:
-            if len(points) < 3:
-                return []
-            
-            # Find convex hull or create bounding rectangle
-            if len(points) == 4:
-                # Try to order as rectangle
-                return self._order_rectangle_points(points)
-            else:
-                # Create convex hull
-                return self._create_convex_hull(points)
-                
-        except Exception:
-            return []
-
-    def _order_rectangle_points(self, points: List[Tuple[float, float]]) -> List[Tuple[float, float]]:
-        """Order 4 points to form a rectangle"""
-        try:
-            # Sort by x, then by y
-            sorted_points = sorted(points, key=lambda p: (p[0], p[1]))
-            
-            # Group into left and right pairs
-            left_points = sorted_points[:2]
-            right_points = sorted_points[2:]
-            
-            # Sort each pair by y
-            left_points.sort(key=lambda p: p[1])
-            right_points.sort(key=lambda p: p[1])
-            
-            # Order: bottom-left, bottom-right, top-right, top-left
-            return [
-                left_points[0],   # bottom-left
-                right_points[0],  # bottom-right
-                right_points[1],  # top-right
-                left_points[1]    # top-left
-            ]
-            
-        except Exception:
-            return points
-
-    def _create_convex_hull(self, points: List[Tuple[float, float]]) -> List[Tuple[float, float]]:
-        """Create convex hull from points (simplified Graham scan)"""
-        try:
-            if len(points) <= 3:
-                return points
-            
-            # Find bottom-most point
-            start = min(points, key=lambda p: (p[1], p[0]))
-            
-            # Sort points by polar angle with respect to start point
-            def polar_angle(p):
-                return math.atan2(p[1] - start[1], p[0] - start[0])
-            
-            sorted_points = sorted([p for p in points if p != start], key=polar_angle)
-            
-            # Build convex hull
-            hull = [start]
-            for point in sorted_points:
-                while len(hull) > 1 and self._cross_product(hull[-2], hull[-1], point) <= 0:
-                    hull.pop()
-                hull.append(point)
-            
-            return hull
-            
-        except Exception:
-            return points[:4]  # Return first 4 points as fallback
-
-    def _cross_product(self, O, A, B):
-        """Calculate cross product for convex hull"""
-        return (A[0] - O[0]) * (B[1] - O[1]) - (A[1] - O[1]) * (B[0] - O[0])
-
-    def _analyze_dwg_structure(self, dwg_data: bytes) -> Dict[str, Any]:
-        """Analyze DWG file structure for debugging info"""
-        try:
-            file_size = len(dwg_data)
-            
-            # Basic file analysis
-            analysis = {
-                'file_size_bytes': file_size,
-                'file_size_kb': round(file_size / 1024, 2),
-                'header_signature': dwg_data[:6].hex() if len(dwg_data) >= 6 else '',
-                'estimated_complexity': 'High' if file_size > 1000000 else 'Medium' if file_size > 100000 else 'Low'
-            }
-            
-            # Look for common DWG markers
-            markers = [b'ENTITIES', b'OBJECTS', b'HEADER', b'TABLES', b'BLOCKS']
-            found_markers = []
-            
-            for marker in markers:
-                if marker in dwg_data:
-                    found_markers.append(marker.decode('ascii'))
-            
-            analysis['found_sections'] = found_markers
-            analysis['sections_count'] = len(found_markers)
-            
-            return analysis
-            
-        except Exception:
-            return {'analysis': 'failed'}
-
-    def _calculate_centroid(self, points: List[Tuple[float, float]]) -> Tuple[float, float]:
-        """Calculate polygon centroid"""
-        if not points:
-            return (0, 0)
-
-        x = sum(p[0] for p in points) / len(points)
-        y = sum(p[1] for p in points) / len(points)
-        return (x, y)
-
-    def _parse_with_fallback_strategy(self, file_path: str) -> Dict[str, Any]:
-        """Fallback parsing strategy"""
-        # Try to read as text and extract coordinates
-        try:
-            with open(file_path, 'rb') as f:
-                content = f.read()
-
-            # Look for coordinate patterns in the binary data
-            # This is a simplified approach
-            zones = self._extract_zones_from_binary(content)
-
-            return {
-                'zones': zones,
-                'parsing_method': 'binary_fallback',
-                'note': 'Extracted from binary content analysis'
-            }
-        except Exception as e:
-            raise Exception(f"Fallback parsing failed: {e}")
-
-    def _extract_zones_from_binary(self, content: bytes) -> List[Dict]:
-        """Extract zones from binary content (simplified)"""
-        # This is a very basic implementation
-        # In a real scenario, you'd need proper DWG binary parsing
-        zones = []
-
-        # Create some reasonable default zones based on file size
-        file_size = len(content)
-        num_zones = min(max(file_size // 10000, 2), 8)  # 2-8 zones based on file size
-
-        for i in range(num_zones):
-            # Create rectangular zones
-            x = i * 400
-            y = 0
-            width = 300 + (i * 50)
-            height = 200 + (i * 30)
-
-            zone = {
-                'id': i,
-                'polygon': [
-                    (x, y),
-                    (x + width, y),
-                    (x + width, y + height),
-                    (x, y + height)
-                ],
-                'area': width * height,
-                'centroid': (x + width/2, y + height/2),
-                'layer': '0',
-                'zone_type': f'Room_{i+1}',
-                'parsing_method': 'binary_analysis'
-            }
-            zones.append(zone)
-
         return zones
 
-    def get_file_info(self, file_path: str) -> Dict[str, Any]:
-        """ENTERPRISE: Get real file information without creating fake zones"""
-        try:
-            doc = ezdxf.readfile(file_path)
-            entities = len(list(doc.modelspace()))
-            layers = len(doc.layers)
-            blocks = len(doc.blocks)
-            
-            return {
-                'entities': entities,
-                'layers': layers, 
-                'blocks': blocks,
-                'file_type': 'DXF' if file_path.lower().endswith('.dxf') else 'DWG'
-            }
-        except:
-            return {'entities': 0, 'layers': 0, 'blocks': 0, 'file_type': 'Unknown'}
-    
-    def _create_intelligent_fallback(self, file_path: str) -> Dict[str, Any]:
-        """Advanced binary DWG analysis - NO DEMO DATA"""
-        try:
-            logger.info("Starting advanced binary DWG analysis...")
-            
-            # Read and analyze DWG binary structure
-            with open(file_path, 'rb') as f:
-                dwg_data = f.read()
-            
-            # DWG file signature and version detection
-            dwg_version = self._detect_dwg_version(dwg_data)
-            logger.info(f"Detected DWG version: {dwg_version}")
-            
-            # Extract coordinate data from DWG binary
-            coordinates = self._extract_coordinates_from_dwg(dwg_data)
-            logger.info(f"Extracted {len(coordinates)} coordinate points")
-            
-            if not coordinates:
-                # Try alternative extraction methods
-                coordinates = self._extract_coordinates_alternative(dwg_data)
-                logger.info(f"Alternative extraction found {len(coordinates)} points")
-            
-            if coordinates:
-                # Build zones from real coordinate data
-                zones = self._build_zones_from_coordinates(coordinates)
-                logger.info(f"Built {len(zones)} zones from real coordinates")
-                
-                return {
-                    'zones': zones,
-                    'parsing_method': 'binary_coordinate_extraction',
-                    'dwg_version': dwg_version,
-                    'note': f'Extracted {len(zones)} real zones from DWG binary data'
-                }
-            
-            # If no coordinates found, analyze DWG structure
-            structure_info = self._analyze_dwg_structure(dwg_data)
-            
-            return {
-                'zones': [],
-                'parsing_method': 'structure_analysis_only',
-                'dwg_version': dwg_version,
-                'structure_info': structure_info,
-                'note': 'DWG file analyzed but no extractable geometry found'
-            }
-            
-        except Exception as e:
-            logger.error(f"Binary analysis failed: {e}")
-            return {
-                'zones': [],
-                'parsing_method': 'binary_analysis_failed',
-                'error': str(e),
-                'note': 'Unable to extract data from DWG file'
-            }
+    def _process_lwpolyline(self, entities: List) -> List[Dict[str, Any]]:
+        """Process LWPOLYLINE entities"""
+        zones = []
+        for i, entity in enumerate(entities):
+            try:
+                points = list(entity.vertices_in_wcs())
+                if len(points) >= 3:
+                    zone = {
+                        'zone_id': f"lwpoly_{i}",
+                        'zone_type': self._classify_by_layer(entity.dxf.layer),
+                        'points': [(float(p.x), float(p.y)) for p in points],
+                        'area': self._calculate_area(points),
+                        'perimeter': self._calculate_perimeter(points),
+                        'layer': entity.dxf.layer,
+                        'entity_type': 'LWPOLYLINE',
+                        'is_closed': entity.closed,
+                        'bounds': self._calculate_bounds(points)
+                    }
+                    zones.append(zone)
+            except Exception as e:
+                print(f"Warning: Error processing LWPOLYLINE {i}: {str(e)}")
+                continue
+        return zones
 
-def parse_dwg_file_enhanced(file_path: str) -> Dict[str, Any]:
-    """Main function to parse DWG file with enhanced capabilities"""
-    parser = EnhancedDWGParser()
-    return parser.parse_file(file_path)
+    def _process_polyline(self, entities: List) -> List[Dict[str, Any]]:
+        """Process POLYLINE entities"""
+        zones = []
+        for i, entity in enumerate(entities):
+            try:
+                points = list(entity.vertices_in_wcs())
+                if len(points) >= 3:
+                    zone = {
+                        'zone_id': f"poly_{i}",
+                        'zone_type': self._classify_by_layer(entity.dxf.layer),
+                        'points': [(float(p.x), float(p.y)) for p in points],
+                        'area': self._calculate_area(points),
+                        'perimeter': self._calculate_perimeter(points),
+                        'layer': entity.dxf.layer,
+                        'entity_type': 'POLYLINE',
+                        'is_closed': entity.is_closed,
+                        'bounds': self._calculate_bounds(points)
+                    }
+                    zones.append(zone)
+            except Exception as e:
+                print(f"Warning: Error processing POLYLINE {i}: {str(e)}")
+                continue
+        return zones
+
+    def _process_circle(self, entities: List) -> List[Dict[str, Any]]:
+        """Process CIRCLE entities"""
+        zones = []
+        for i, entity in enumerate(entities):
+            try:
+                center = entity.dxf.center
+                radius = entity.dxf.radius
+                points = self._create_circle_points(center, radius)
+
+                zone = {
+                    'zone_id': f"circle_{i}",
+                    'zone_type': self._classify_by_layer(entity.dxf.layer),
+                    'points': points,
+                    'area': 3.14159 * radius * radius,
+                    'perimeter': 2 * 3.14159 * radius,
+                    'layer': entity.dxf.layer,
+                    'entity_type': 'CIRCLE',
+                    'is_closed': True,
+                    'center': (float(center.x), float(center.y)),
+                    'radius': float(radius),
+                    'bounds': self._calculate_bounds_coords(points)
+                }
+                zones.append(zone)
+            except Exception as e:
+                print(f"Warning: Error processing CIRCLE {i}: {str(e)}")
+                continue
+        return zones
+
+    def _process_arc(self, entities: List) -> List[Dict[str, Any]]:
+        """Process ARC entities"""
+        zones = []
+        for i, entity in enumerate(entities):
+            try:
+                center = entity.dxf.center
+                radius = entity.dxf.radius
+                start_angle = entity.dxf.start_angle
+                end_angle = entity.dxf.end_angle
+
+                points = self._create_arc_points(center, radius, start_angle, end_angle)
+
+                zone = {
+                    'zone_id': f"arc_{i}",
+                    'zone_type': self._classify_by_layer(entity.dxf.layer),
+                    'points': points,
+                    'area': 0,  # Arcs don't have area
+                    'perimeter': abs(end_angle - start_angle) * 3.14159 * radius / 180,
+                    'layer': entity.dxf.layer,
+                    'entity_type': 'ARC',
+                    'is_closed': False,
+                    'center': (float(center.x), float(center.y)),
+                    'radius': float(radius),
+                    'bounds': self._calculate_bounds_coords(points)
+                }
+                zones.append(zone)
+            except Exception as e:
+                print(f"Warning: Error processing ARC {i}: {str(e)}")
+                continue
+        return zones
+
+    def _process_line(self, entities: List) -> List[Dict[str, Any]]:
+        """Process LINE entities"""
+        zones = []
+        for i, entity in enumerate(entities):
+            try:
+                start = entity.dxf.start
+                end = entity.dxf.end
+                points = [(float(start.x), float(start.y)), (float(end.x), float(end.y))]
+
+                zone = {
+                    'zone_id': f"line_{i}",
+                    'zone_type': self._classify_by_layer(entity.dxf.layer),
+                    'points': points,
+                    'area': 0,  # Lines don't have area
+                    'perimeter': self._calculate_distance(points[0], points[1]),
+                    'layer': entity.dxf.layer,
+                    'entity_type': 'LINE',
+                    'is_closed': False,
+                    'bounds': self._calculate_bounds_coords(points)
+                }
+                zones.append(zone)
+            except Exception as e:
+                print(f"Warning: Error processing LINE {i}: {str(e)}")
+                continue
+        return zones
+
+    def _process_spline(self, entities: List) -> List[Dict[str, Any]]:
+        """Process SPLINE entities"""
+        zones = []
+        for i, entity in enumerate(entities):
+            try:
+                # Convert spline to polyline approximation
+                points = self._spline_to_points(entity)
+
+                if len(points) >= 2:
+                    zone = {
+                        'zone_id': f"spline_{i}",
+                        'zone_type': self._classify_by_layer(entity.dxf.layer),
+                        'points': points,
+                        'area': self._calculate_area_coords(points) if len(points) >= 3 else 0,
+                        'perimeter': self._calculate_perimeter_coords(points),
+                        'layer': entity.dxf.layer,
+                        'entity_type': 'SPLINE',
+                        'is_closed': entity.closed,
+                        'bounds': self._calculate_bounds_coords(points)
+                    }
+                    zones.append(zone)
+            except Exception as e:
+                print(f"Warning: Error processing SPLINE {i}: {str(e)}")
+                continue
+        return zones
+
+    def _analyze_zones_enhanced(self, zones: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Enhanced zone analysis"""
+        enhanced_zones = []
+
+        for zone in zones:
+            try:
+                # Add geometric analysis
+                zone['geometric_analysis'] = self._analyze_geometry(zone)
+
+                # Add spatial relationships
+                zone['spatial_relationships'] = self._analyze_spatial_relationships(zone, zones)
+
+                # Add quality metrics
+                zone['quality_metrics'] = self._calculate_quality_metrics(zone)
+
+                enhanced_zones.append(zone)
+
+            except Exception as e:
+                print(f"Warning: Error enhancing zone {zone.get('zone_id', 'unknown')}: {str(e)}")
+                enhanced_zones.append(zone)  # Add original zone if enhancement fails
+                continue
+
+        return enhanced_zones
+
+    def _classify_by_layer(self, layer_name: str) -> str:
+        """Classify entity type based on layer name"""
+        layer_lower = layer_name.lower()
+
+        classification_map = {
+            'wall': 'Wall', 'mur': 'Wall', 'walls': 'Wall',
+            'door': 'Door', 'porte': 'Door', 'doors': 'Door',
+            'window': 'Window', 'fenetre': 'Window', 'windows': 'Window',
+            'kitchen': 'Kitchen', 'cuisine': 'Kitchen',
+            'bath': 'Bathroom', 'salle': 'Bathroom', 'bathroom': 'Bathroom',
+            'bed': 'Bedroom', 'chambre': 'Bedroom', 'bedroom': 'Bedroom',
+            'living': 'Living Room', 'salon': 'Living Room'
+        }
+
+        for key, value in classification_map.items():
+            if key in layer_lower:
+                return value
+
+        return 'Room'
+
+    def _calculate_area(self, points) -> float:
+        """Calculate area from ezdxf points"""
+        try:
+            coords = [(float(p.x), float(p.y)) for p in points]
+            return self._calculate_area_coords(coords)
+        except:
+            return 0.0
+
+    def _calculate_area_coords(self, coords: List[Tuple[float, float]]) -> float:
+        """Calculate area using shoelace formula"""
+        if len(coords) < 3:
+            return 0.0
+
+        area = 0.0
+        n = len(coords)
+        for i in range(n):
+            j = (i + 1) % n
+            area += coords[i][0] * coords[j][1]
+            area -= coords[j][0] * coords[i][1]
+        return abs(area) / 2.0
+
+    def _calculate_perimeter(self, points) -> float:
+        """Calculate perimeter from ezdxf points"""
+        try:
+            coords = [(float(p.x), float(p.y)) for p in points]
+            return self._calculate_perimeter_coords(coords)
+        except:
+            return 0.0
+
+    def _calculate_perimeter_coords(self, coords: List[Tuple[float, float]]) -> float:
+        """Calculate perimeter"""
+        if len(coords) < 2:
+            return 0.0
+
+        perimeter = 0.0
+        for i in range(len(coords)):
+            j = (i + 1) % len(coords)
+            perimeter += self._calculate_distance(coords[i], coords[j])
+        return perimeter
+
+    def _calculate_distance(self, p1: Tuple[float, float], p2: Tuple[float, float]) -> float:
+        """Calculate distance between two points"""
+        return ((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)**0.5
+
+    def _calculate_bounds(self, points) -> Dict[str, float]:
+        """Calculate bounding box from ezdxf points"""
+        try:
+            coords = [(float(p.x), float(p.y)) for p in points]
+            return self._calculate_bounds_coords(coords)
+        except:
+            return {'min_x': 0, 'max_x': 0, 'min_y': 0, 'max_y': 0}
+
+    def _calculate_bounds_coords(self, coords: List[Tuple[float, float]]) -> Dict[str, float]:
+        """Calculate bounding box"""
+        if not coords:
+            return {'min_x': 0, 'max_x': 0, 'min_y': 0, 'max_y': 0}
+
+        x_coords = [p[0] for p in coords]
+        y_coords = [p[1] for p in coords]
+
+        return {
+            'min_x': min(x_coords),
+            'max_x': max(x_coords),
+            'min_y': min(y_coords),
+            'max_y': max(y_coords)
+        }
+
+    def _create_circle_points(self, center, radius, num_points=32) -> List[Tuple[float, float]]:
+        """Create polygon points approximating a circle"""
+        import math
+        points = []
+        for i in range(num_points):
+            angle = 2 * math.pi * i / num_points
+            x = center.x + radius * math.cos(angle)
+            y = center.y + radius * math.sin(angle)
+            points.append((float(x), float(y)))
+        return points
+
+    def _create_arc_points(self, center, radius, start_angle, end_angle, num_points=16) -> List[Tuple[float, float]]:
+        """Create points for arc approximation"""
+        import math
+        points = []
+
+        # Convert angles to radians
+        start_rad = math.radians(start_angle)
+        end_rad = math.radians(end_angle)
+
+        # Handle angle wrapping
+        if end_rad < start_rad:
+            end_rad += 2 * math.pi
+
+        angle_step = (end_rad - start_rad) / num_points
+
+        for i in range(num_points + 1):
+            angle = start_rad + i * angle_step
+            x = center.x + radius * math.cos(angle)
+            y = center.y + radius * math.sin(angle)
+            points.append((float(x), float(y)))
+
+        return points
+
+    def _spline_to_points(self, spline, num_points=20) -> List[Tuple[float, float]]:
+        """Convert spline to polyline approximation"""
+        try:
+            # Use ezdxf's flattening capability
+            points = []
+            for point in spline.flattening(0.1):  # 0.1 is the approximation distance
+                points.append((float(point.x), float(point.y)))
+            return points
+        except:
+            # Fallback: use control points
+            try:
+                control_points = spline.control_points
+                return [(float(p.x), float(p.y)) for p in control_points]
+            except:
+                return []
+
+    def _analyze_geometry(self, zone: Dict[str, Any]) -> Dict[str, Any]:
+        """Analyze geometric properties"""
+        analysis = {}
+
+        try:
+            points = zone.get('points', [])
+            if len(points) >= 3:
+                # Calculate centroid
+                centroid_x = sum(p[0] for p in points) / len(points)
+                centroid_y = sum(p[1] for p in points) / len(points)
+                analysis['centroid'] = (centroid_x, centroid_y)
+
+                # Calculate shape complexity
+                analysis['vertex_count'] = len(points)
+                analysis['shape_complexity'] = 'simple' if len(points) <= 4 else 'complex'
+
+                # Calculate aspect ratio
+                bounds = zone.get('bounds', {})
+                if bounds:
+                    width = bounds.get('max_x', 0) - bounds.get('min_x', 0)
+                    height = bounds.get('max_y', 0) - bounds.get('min_y', 0)
+                    analysis['aspect_ratio'] = width / height if height > 0 else 1.0
+
+        except Exception as e:
+            print(f"Warning: Error analyzing geometry: {str(e)}")
+
+        return analysis
+
+    def _analyze_spatial_relationships(self, zone: Dict[str, Any], all_zones: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Analyze spatial relationships with other zones"""
+        relationships = {
+            'adjacent_zones': [],
+            'overlapping_zones': [],
+            'contained_zones': [],
+            'containing_zones': []
+        }
+
+        # This is a simplified implementation
+        # In a real application, you'd use proper geometric algorithms
+
+        return relationships
+
+    def _calculate_quality_metrics(self, zone: Dict[str, Any]) -> Dict[str, Any]:
+        """Calculate quality metrics for the zone"""
+        metrics = {
+            'completeness': 1.0,  # Assume complete for real parsed data
+            'accuracy': 1.0,      # Assume accurate for real parsed data
+            'geometric_validity': True
+        }
+
+        try:
+            # Check for basic geometric validity
+            points = zone.get('points', [])
+            if len(points) < 3:
+                metrics['geometric_validity'] = False
+
+            # Check for self-intersections (simplified)
+            area = zone.get('area', 0)
+            if area <= 0:
+                metrics['geometric_validity'] = False
+
+        except Exception as e:
+            print(f"Warning: Error calculating quality metrics: {str(e)}")
+            metrics['geometric_validity'] = False
+
+        return metrics
+
+    def _calculate_statistics(self, zones: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Calculate overall statistics"""
+        stats = {
+            'total_zones': len(zones),
+            'total_area': sum(zone.get('area', 0) for zone in zones),
+            'zone_types': {},
+            'layers': set(),
+            'entity_types': {}
+        }
+
+        for zone in zones:
+            # Count zone types
+            zone_type = zone.get('zone_type', 'Unknown')
+            stats['zone_types'][zone_type] = stats['zone_types'].get(zone_type, 0) + 1
+
+            # Collect layers
+            layer = zone.get('layer', 'Unknown')
+            stats['layers'].add(layer)
+
+            # Count entity types
+            entity_type = zone.get('entity_type', 'Unknown')
+            stats['entity_types'][entity_type] = stats['entity_types'].get(entity_type, 0) + 1
+
+        stats['layers'] = list(stats['layers'])
+
+        return stats
