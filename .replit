@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 modules = ["python-3.11"]
 
 [nix]
@@ -28,7 +29,37 @@ author = "agent"
 task = "shell.exec"
 args = "streamlit run app.py --server.port 5000"
 waitForPort = 5000
+=======
+modules = ["python-3.12"]
+run = "streamlit run undefined"
+
+[nix]
+channel = "stable-24_05"
+packages = ["cairo", "ffmpeg-full", "freetype", "geos", "ghostscript", "glibcLocales", "gobject-introspection", "gtk3", "gumbo", "harfbuzz", "jbig2dec", "lcms2", "libimagequant", "libjpeg", "libjpeg_turbo", "libtiff", "libwebp", "libxcrypt", "mupdf", "openjpeg", "pkg-config", "qhull", "swig", "tcl", "tk", "xcbuild", "zlib"]
+
+[deployment]
+run = ["sh", "-c", "streamlit run undefined"]
+
+[workflows]
+runButton = "Run"
+
+[[workflows.workflow]]
+name = "Run"
+author = 44543542
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "streamlit run apps/streamlit_app.py --server.port 8080 --server.address 0.0.0.0"
+>>>>>>> d9a3dfcdf70c971baab32a146dc15b622ed329ee
 
 [[ports]]
 localPort = 5000
 externalPort = 80
+<<<<<<< HEAD
+=======
+
+[[ports]]
+localPort = 8080
+externalPort = 8080
+>>>>>>> d9a3dfcdf70c971baab32a146dc15b622ed329ee
