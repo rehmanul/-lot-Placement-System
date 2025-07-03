@@ -36,7 +36,8 @@ class DWGParser:
         # Fallback: create zones based on file characteristics
         file_size = len(file_bytes)
         hash_seed = hash(filename + str(file_size)) % 1000000
-        np.random.seed(hash_seed)
+        import random
+        random.seed(hash_seed)
 
         # Create realistic building zones
         zones = [

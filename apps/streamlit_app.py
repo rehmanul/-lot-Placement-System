@@ -4,6 +4,7 @@ Specialized for architectural îlot placement with size distributions
 """
 
 import streamlit as st
+import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
 import tempfile
@@ -12,7 +13,6 @@ from pathlib import Path
 import pandas as pd
 from typing import List, Dict, Any
 import json
-import numpy as np
 
 # Import our specialized modules
 import sys

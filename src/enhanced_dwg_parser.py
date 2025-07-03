@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 from functools import wraps
 import hashlib
+import numpy as np
 
 try:
     import ezdxf
