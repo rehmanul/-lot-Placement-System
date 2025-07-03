@@ -6,6 +6,7 @@ import shutil
 from typing import List, Dict, Any
 from pathlib import Path
 from shapely.geometry import Polygon, Point
+import numpy as np
 
 
 class DWGParser:
@@ -18,12 +19,12 @@ class DWGParser:
             'LWPOLYLINE', 'POLYLINE', 'LINE', 'ARC', 'CIRCLE', 'ELLIPSE',
             'SPLINE', 'HATCH'
         ]
-        
+
     def parse_file_simple(self, file_bytes: bytes, filename: str) -> List[Dict[str, Any]]:
         """Simplified parser that returns basic zones for îlot placement"""
         # For the îlot placement system, return a simple structure
         zones = []
-        
+
         # Try to parse with ezdxf first
         try:
             zones = self.parse_file(file_bytes, filename)
@@ -31,12 +32,12 @@ class DWGParser:
                 return zones
         except Exception as e:
             print(f"DXF parsing failed: {e}")
-        
+
         # Fallback: create zones based on file characteristics
         file_size = len(file_bytes)
         hash_seed = hash(filename + str(file_size)) % 1000000
         np.random.seed(hash_seed)
-        
+
         # Create realistic building zones
         zones = [
             {
@@ -64,7 +65,7 @@ class DWGParser:
                 'zone_type': 'ENTREE_SORTIE'
             }
         ]
-        
+
         return zones
 
     def parse_file(self, file_bytes: bytes,
@@ -104,7 +105,7 @@ class DWGParser:
                             return self._validate_and_clean_zones(zones)
                 except Exception as e:
                     print(f"Enhanced parser failed: {e}")
-                
+
                 # If enhanced parser failed, don't immediately fallback
                 # Let it try DXF parsing methods below
                 print(f"DWG file {filename} will be processed with DXF methods")
@@ -132,7 +133,7 @@ class DWGParser:
                 else:
                     # For DXF files, this is a real error
                     raise Exception(f"Cannot read DXF file {filename}: {str(e)}")
-            
+
             if not doc:
                 return []
 
@@ -210,9 +211,9 @@ class DWGParser:
     def _parse_dwg_file(self, file_path: str, filename: str) -> List[Dict[str, Any]]:
         """Enhanced DWG file parsing with multiple fallback methods"""
         zones = []
-        
+
         print(f"Attempting to parse DWG file: {filename}")
-        
+
         # Method 1: Try ezdxf with recovery mode
         try:
             print("Method 1: Trying ezdxf recovery mode...")
@@ -223,7 +224,7 @@ class DWGParser:
                 return zones
         except Exception as e:
             print(f"ezdxf recovery failed: {e}")
-        
+
         # Method 2: Check for available conversion tools
         try:
             print("Method 2: Attempting DWG to DXF conversion...")
@@ -237,7 +238,7 @@ class DWGParser:
                     return zones
         except Exception as e:
             print(f"DWG conversion failed: {e}")
-        
+
         # If all methods fail, provide helpful error message
         raise Exception(
             f"Unable to parse DWG file '{filename}'. This could be due to:\n"
@@ -255,16 +256,16 @@ class DWGParser:
         """Extract zones using ezdxf (reuse existing method)"""
         zones = []
         modelspace = doc.modelspace()
-        
+
         # Existing zone extraction logic
         lwpolyline_zones = self._parse_lwpolylines(modelspace)
         polyline_zones = self._parse_polylines(modelspace)
         hatch_zones = self._parse_hatches(modelspace)
-        
+
         zones.extend(lwpolyline_zones)
         zones.extend(polyline_zones)
         zones.extend(hatch_zones)
-        
+
         return zones
 
     def parse_file_from_path(self, file_path: str) -> List[Dict[str, Any]]:
@@ -340,12 +341,12 @@ class DWGParser:
                     is_closed = entity.closed or (len(points) > 3 and 
                                 abs(points[0][0] - points[-1][0]) < 0.1 and 
                                 abs(points[0][1] - points[-1][1]) < 0.1)
-                    
+
                     if is_closed:
                         # Ensure polygon is properly closed
                         if points[0] != points[-1]:
                             points.append(points[0])
-                    
+
                     area = self._calculate_polygon_area(points)
                     if area > 1.0:  # Minimum area threshold
                         zones.append({
@@ -397,7 +398,7 @@ class DWGParser:
                 # Get boundary paths - check both external and polyline boundaries
                 for boundary_path in entity.paths:
                     points = []
-                    
+
                     # Handle different path types
                     if hasattr(boundary_path, 'path_type_flags'):
                         # Check for external boundary or polyline boundary
@@ -414,19 +415,19 @@ class DWGParser:
                             elif hasattr(boundary_path, 'vertices') and boundary_path.vertices:
                                 # Handle polyline boundary
                                 points = [(v[0], v[1]) for v in boundary_path.vertices]
-                    
+
                     # Alternative: try to get source boundary objects
                     if not points and hasattr(boundary_path, 'source_boundary_objects'):
                         for obj in boundary_path.source_boundary_objects:
                             if hasattr(obj, 'vertices'):
                                 points = [(v[0], v[1]) for v in obj.vertices]
                                 break
-                    
+
                     if len(points) >= 3:
                         # Ensure closed polygon
                         if points[0] != points[-1]:
                             points.append(points[0])
-                        
+
                         area = self._calculate_polygon_area(points)
                         if area > 1.0:  # Minimum area threshold
                             zones.append({
@@ -438,7 +439,7 @@ class DWGParser:
                                 'perimeter': self._calculate_perimeter(points)
                             })
                             break  # Only take the first valid boundary
-                            
+
             except Exception as e:
                 continue
 
@@ -499,26 +500,26 @@ class DWGParser:
             area -= points[j][0] * points[i][1]
 
         return abs(area) / 2.0
-    
+
     def _calculate_perimeter(self, points: List[tuple]) -> float:
         """Calculate polygon perimeter"""
         if len(points) < 2:
             return 0.0
-        
+
         perimeter = 0.0
         for i in range(len(points)):
             j = (i + 1) % len(points)
             dx = points[j][0] - points[i][0]
             dy = points[j][1] - points[i][1]
             perimeter += (dx * dx + dy * dy) ** 0.5
-        
+
         return perimeter
-    
+
     def _calculate_bounds(self, points: List[tuple]) -> tuple:
         """Calculate bounding box of points"""
         if not points:
             return (0, 0, 0, 0)
-        
+
         xs = [p[0] for p in points]
         ys = [p[1] for p in points]
         return (min(xs), min(ys), max(xs), max(ys))
