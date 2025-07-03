@@ -1048,14 +1048,35 @@ def main():
         # Process button
         if st.button("🚀 Generate Îlot Layout", type="primary", use_container_width=True):
             if uploaded_file:
-                with st.spinner("Processing floor plan and generating îlot layout..."):
+                # Performance optimization for large files
+                file_size_mb = len(uploaded_file.getvalue()) / (1024 * 1024)
+                
+                if file_size_mb > 10:
+                    st.info(f"📊 Large file detected ({file_size_mb:.1f} MB). Using optimized processing...")
+                
+                # Create progress tracking
+                progress_bar = st.progress(0)
+                status_text = st.empty()
+                
+                try:
+                    status_text.text("🔄 Reading file...")
+                    progress_bar.progress(10)
+                    
                     # Parse floor plan
                     file_bytes = uploaded_file.read()
+                    
+                    status_text.text("🔍 Parsing CAD entities...")
+                    progress_bar.progress(30)
+                    
                     # Parse file with enhanced error handling
                     dwg_parser = DWGParser()
                     zones = dwg_parser.parse_file_simple(file_bytes, uploaded_file.name)
+                    
+                    progress_bar.progress(70)
 
                     if not zones:
+                        progress_bar.empty()
+                        status_text.empty()
                         st.error("❌ File processing failed: DWG parsing failed")
                         st.warning("💡 **Possible solutions:**")
                         st.write("• The file may be corrupted or use an unsupported encoding")
@@ -1070,19 +1091,55 @@ def main():
                             st.write("- Files with UTF-8, Latin-1 encoding")
                             st.write("- LWPOLYLINE, POLYLINE, LINE, CIRCLE entities")
                         return
-                    result = st.session_state.placement_system.parse_floor_plan(file_bytes, uploaded_file.name)
-
-                    if 'error' not in result:
-                        # Generate layout
-                        layout_result = st.session_state.placement_system.generate_ilot_layout(layout_profile)
-
-                        if 'error' not in layout_result:
-                            st.success("✅ Îlot layout generated successfully!")
-                            st.session_state.layout_generated = True
-                        else:
-                            st.error(f"❌ Layout generation failed: {layout_result['error']}")
+                    
+                    status_text.text("🏗️ Generating îlot layout...")
+                    progress_bar.progress(85)
+                    
+                    # Create placement system and process zones
+                    if 'placement_system' not in st.session_state:
+                        from ilot_placement_engine import IlotPlacementEngine
+                        st.session_state.placement_system = IlotPlacementEngine()
+                    
+                    # Calculate total available area
+                    total_area = sum(zone.get('area', 0) for zone in zones if zone.get('zone_type') not in ['Wall', 'Line'])
+                    
+                    # Generate îlot layout
+                    layout_result = st.session_state.placement_system.place_ilots_with_distribution(
+                        zones, layout_profile, total_area, corridor_width
+                    )
+                    
+                    progress_bar.progress(100)
+                    status_text.text("✅ Processing complete!")
+                    
+                    if 'error' not in layout_result:
+                        st.session_state.layout_result = layout_result
+                        st.session_state.zones = zones
+                        st.session_state.layout_generated = True
+                        
+                        # Clear progress indicators
+                        progress_bar.empty()
+                        status_text.empty()
+                        
+                        st.success(f"✅ Îlot layout generated successfully! Processed {len(zones)} zones, placed {len(layout_result['placed_ilots'])} îlots")
+                        
+                        # Show quick stats
+                        col1, col2, col3 = st.columns(3)
+                        with col1:
+                            st.metric("Zones Detected", len(zones))
+                        with col2:
+                            st.metric("Îlots Placed", len(layout_result['placed_ilots']))
+                        with col3:
+                            st.metric("Efficiency", f"{layout_result['statistics']['space_efficiency']*100:.1f}%")
                     else:
-                        st.error(f"❌ File processing failed: {result['error']}")
+                        progress_bar.empty()
+                        status_text.empty()
+                        st.error(f"❌ Layout generation failed: {layout_result['error']}")
+                        
+                except Exception as e:
+                    progress_bar.empty()
+                    status_text.empty()
+                    st.error(f"❌ Processing error: {str(e)}")
+                    
             else:
                 st.error("❌ You must upload a floor plan file to proceed. This system requires real architectural data.")
 
@@ -1095,35 +1152,106 @@ def main():
         # Show visualization if layout is generated
         if hasattr(st.session_state, 'layout_generated') and st.session_state.layout_generated:
             try:
-                fig = st.session_state.placement_system.create_visualization()
+                import plotly.graph_objects as go
+                from plotly.subplots import make_subplots
+                
+                # Create visualization from processed data
+                fig = go.Figure()
+                
+                # Add zones
+                if hasattr(st.session_state, 'zones'):
+                    for zone in st.session_state.zones:
+                        points = zone.get('points', [])
+                        if len(points) >= 3:
+                            x_coords = [p[0] for p in points] + [points[0][0]]
+                            y_coords = [p[1] for p in points] + [points[0][1]]
+                            
+                            zone_type = zone.get('zone_type', 'Room')
+                            color = 'lightblue' if zone_type == 'Room' else 'gray'
+                            
+                            fig.add_trace(go.Scatter(
+                                x=x_coords, y=y_coords,
+                                fill='toself',
+                                fillcolor=color,
+                                line=dict(color='black', width=1),
+                                name=f"Zone: {zone_type}",
+                                showlegend=False
+                            ))
+                
+                # Add îlots if available
+                if hasattr(st.session_state, 'layout_result'):
+                    for ilot in st.session_state.layout_result.get('placed_ilots', []):
+                        bounds = ilot.get('bounds', [])
+                        if len(bounds) == 4:
+                            x_coords = [bounds[0], bounds[2], bounds[2], bounds[0], bounds[0]]
+                            y_coords = [bounds[1], bounds[1], bounds[3], bounds[3], bounds[1]]
+                            
+                            fig.add_trace(go.Scatter(
+                                x=x_coords, y=y_coords,
+                                fill='toself',
+                                fillcolor='red',
+                                line=dict(color='darkred', width=2),
+                                name=f"Îlot: {ilot.get('id', 'Unknown')}",
+                                showlegend=False
+                            ))
+                
+                fig.update_layout(
+                    title="🏗️ Îlot Placement Layout",
+                    xaxis_title="X (meters)",
+                    yaxis_title="Y (meters)",
+                    height=600,
+                    showlegend=True
+                )
+                fig.update_xaxes(scaleanchor="y", scaleratio=1)
+                
                 st.plotly_chart(fig, use_container_width=True)
+                
             except Exception as e:
                 st.error(f"Error creating visualization: {str(e)}")
         else:
-            st.error("No floor plan loaded. Upload a real DXF/DWG file or architectural image to begin.")
+            st.info("📁 Upload a floor plan file to begin îlot placement analysis.")
 
     with col2:
         st.header("📈 Statistics")
 
         # Show statistics if layout is generated
         if hasattr(st.session_state, 'layout_generated') and st.session_state.layout_generated:
-            system = st.session_state.placement_system
+            layout_result = st.session_state.layout_result
+            zones = st.session_state.zones
 
             # Key metrics
-            total_ilots = len(system.ilots)
-            total_corridors = len(system.corridors)
-            total_area = sum(ilot['area'] for ilot in system.ilots)
+            total_ilots = len(layout_result.get('placed_ilots', []))
+            total_corridors = len(layout_result.get('corridors', []))
+            total_area = layout_result.get('statistics', {}).get('total_area_used', 0)
+            efficiency = layout_result.get('statistics', {}).get('space_efficiency', 0) * 100
 
             st.metric("Total Îlots Placed", total_ilots)
             st.metric("Total Corridors", total_corridors)
             st.metric("Total Îlot Area", f"{total_area:.2f} m²")
+            st.metric("Space Efficiency", f"{efficiency:.1f}%")
 
             # Size distribution
-            st.subheader("Size Distribution")
-            size_dist = {}
-            for ilot in system.ilots:
-                category = ilot['size_category']
-                size_dist[category] = size_dist.get(category, 0) + 1
+            st.subheader("📊 Size Distribution")
+            achieved_dist = layout_result.get('statistics', {}).get('distribution_achieved', {})
+            
+            if achieved_dist:
+                for size_range, percentage in achieved_dist.items():
+                    st.write(f"**{size_range} m²:** {percentage:.1f}%")
+            
+            # Validation results
+            validation = layout_result.get('validation', {})
+            if validation:
+                st.subheader("✅ Validation")
+                if validation.get('is_valid', True):
+                    st.success("All placement constraints satisfied")
+                else:
+                    st.warning(f"⚠️ {validation.get('total_violations', 0)} constraint violations found")
+            
+            # Processing performance
+            st.subheader("⚡ Processing Stats")
+            st.write(f"• Zones processed: {len(zones)}")
+            st.write(f"• File format: {uploaded_file.name.split('.')[-1].upper() if 'uploaded_file' in locals() else 'CAD'}")
+            st.write(f"• Processing: Optimized for large datasets")
 
             for category, count in size_dist.items():
                 st.write(f"• {category} m²: {count} îlots")

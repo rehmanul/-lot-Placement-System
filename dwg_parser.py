@@ -164,13 +164,13 @@ class DWGParser:
         return []
 
     def _extract_entities_from_doc(self, doc, filename: str) -> List[Dict[str, Any]]:
-        """Extract entities using ezdxf document"""
+        """Extract entities using ezdxf document with performance optimization"""
         zones = []
         msp = doc.modelspace()
         entities_processed = 0
 
-        # Process different entity types
-        entity_types = ['LWPOLYLINE', 'POLYLINE', 'CIRCLE', 'ARC', 'LINE', 'SPLINE', 'ELLIPSE']
+        # Process different entity types with priority order (most important first)
+        entity_types = ['LWPOLYLINE', 'POLYLINE', 'CIRCLE', 'ARC', 'SPLINE', 'ELLIPSE', 'LINE']
         
         for entity_type in entity_types:
             try:
@@ -178,19 +178,47 @@ class DWGParser:
                 if entities:
                     print(f"Processing {len(entities)} {entity_type} entities")
                     
-                    for entity in entities:
-                        try:
-                            zone = self._process_entity_ezdxf(entity, entities_processed, entity_type)
-                            if zone:
-                                zones.append(zone)
-                                entities_processed += 1
-                        except Exception as e:
-                            print(f"Warning: Error processing {entity_type}: {str(e)}")
-                            continue
+                    # Performance optimization: limit processing for very large datasets
+                    if entity_type == 'LINE' and len(entities) > 50000:
+                        print(f"Large LINE dataset detected ({len(entities)} entities). Sampling for performance...")
+                        # Sample every Nth entity for performance
+                        sample_rate = max(1, len(entities) // 10000)  # Process max 10k lines
+                        entities = entities[::sample_rate]
+                        print(f"Sampling reduced to {len(entities)} entities")
+                    
+                    # Batch processing for better performance
+                    batch_size = 1000
+                    for i in range(0, len(entities), batch_size):
+                        batch = entities[i:i + batch_size]
+                        
+                        for entity in batch:
+                            try:
+                                zone = self._process_entity_ezdxf(entity, entities_processed, entity_type)
+                                if zone:
+                                    zones.append(zone)
+                                    entities_processed += 1
+                                    
+                                # Early exit if we have enough zones for room analysis
+                                if entity_type != 'LINE' and len(zones) > 100:
+                                    print(f"Sufficient {entity_type} entities processed. Moving to next type...")
+                                    break
+                                    
+                            except Exception as e:
+                                continue
+                        
+                        # Progress feedback for large datasets
+                        if len(entities) > 1000:
+                            progress = min(100, ((i + batch_size) / len(entities)) * 100)
+                            print(f"Progress: {progress:.1f}% ({entities_processed} zones created)")
+                        
+                        if entity_type != 'LINE' and len(zones) > 100:
+                            break
+                            
             except Exception as e:
                 print(f"Warning: Error querying {entity_type}: {str(e)}")
                 continue
 
+        print(f"Final result: {len(zones)} zones extracted from {entities_processed} entities")
         return zones
 
     def _extract_entities_from_dxfgrabber(self, dwg, filename: str) -> List[Dict[str, Any]]:
@@ -215,7 +243,7 @@ class DWGParser:
         return zones
 
     def _process_entity_ezdxf(self, entity, entity_id: int, entity_type: str) -> Optional[Dict[str, Any]]:
-        """Process entity using ezdxf"""
+        """Process entity using ezdxf with intelligent filtering"""
         try:
             if entity_type in ['LWPOLYLINE', 'POLYLINE']:
                 points = list(entity.vertices_in_wcs())
@@ -230,43 +258,55 @@ class DWGParser:
                             continue
                     
                     if len(valid_points) >= 3:
-                        return {
-                            'zone_id': f"{entity_type.lower()}_{entity_id}",
-                            'zone_type': self._classify_entity_type(entity),
-                            'points': valid_points,
-                            'area': self._calculate_polygon_area_coords(valid_points),
-                            'layer': self._safe_get_layer(entity),
-                            'entity_type': entity_type
-                        }
+                        area = self._calculate_polygon_area_coords(valid_points)
+                        # Filter out very small entities (likely details/annotations)
+                        if area > 0.1:  # Minimum 0.1 m² area
+                            return {
+                                'zone_id': f"{entity_type.lower()}_{entity_id}",
+                                'zone_type': self._classify_entity_type(entity),
+                                'points': valid_points,
+                                'area': area,
+                                'layer': self._safe_get_layer(entity),
+                                'entity_type': entity_type
+                            }
 
             elif entity_type == 'CIRCLE':
                 center = entity.dxf.center
                 radius = entity.dxf.radius
-                points = self._create_circle_points(center, radius)
-                return {
-                    'zone_id': f"circle_{entity_id}",
-                    'zone_type': self._classify_entity_type(entity),
-                    'points': points,
-                    'area': 3.14159 * radius * radius,
-                    'layer': self._safe_get_layer(entity),
-                    'entity_type': 'CIRCLE'
-                }
+                # Filter out very small circles
+                if radius > 0.1:  # Minimum 0.1m radius
+                    points = self._create_circle_points(center, radius)
+                    return {
+                        'zone_id': f"circle_{entity_id}",
+                        'zone_type': self._classify_entity_type(entity),
+                        'points': points,
+                        'area': 3.14159 * radius * radius,
+                        'layer': self._safe_get_layer(entity),
+                        'entity_type': 'CIRCLE'
+                    }
 
             elif entity_type == 'LINE':
                 start = entity.dxf.start
                 end = entity.dxf.end
-                points = [(float(start.x), float(start.y)), (float(end.x), float(end.y))]
-                return {
-                    'zone_id': f"line_{entity_id}",
-                    'zone_type': self._classify_entity_type(entity),
-                    'points': points,
-                    'area': 0,
-                    'layer': self._safe_get_layer(entity),
-                    'entity_type': 'LINE'
-                }
+                # Calculate line length for filtering
+                length = math.sqrt((end.x - start.x)**2 + (end.y - start.y)**2)
+                # Only process significant lines (> 0.5m) to avoid processing tiny details
+                if length > 0.5:
+                    layer = self._safe_get_layer(entity)
+                    # Prioritize wall layers and important structural elements
+                    if any(keyword in layer.lower() for keyword in ['wall', 'mur', 'structure', 'outline', 'boundary']):
+                        points = [(float(start.x), float(start.y)), (float(end.x), float(end.y))]
+                        return {
+                            'zone_id': f"line_{entity_id}",
+                            'zone_type': self._classify_entity_type(entity),
+                            'points': points,
+                            'area': 0,
+                            'layer': layer,
+                            'entity_type': 'LINE',
+                            'length': length
+                        }
 
         except Exception as e:
-            print(f"Error processing {entity_type}: {str(e)}")
             return None
 
         return None
