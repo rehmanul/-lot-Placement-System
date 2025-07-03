@@ -25,6 +25,7 @@ from reportlab.lib.colors import red, blue, black, green, orange, purple
 from reportlab.lib.units import inch
 import base64
 from dwg_parser import DWGParser
+from ilot_placement_engine import IlotPlacementEngine
 
 # Page configuration
 st.set_page_config(
@@ -116,6 +117,11 @@ class EnterpriseIlotPlacementSystem:
         self.plan_bounds = None
         self.scale_factor = 1.0
         self.metadata = {}
+        self.placement_engine = IlotPlacementEngine()
+
+    def place_ilots_with_distribution(self, zones, layout_profile, total_area, corridor_width):
+        """Place ilots with distribution using the placement engine"""
+        return self.placement_engine.place_ilots_with_distribution(zones, layout_profile, total_area, corridor_width)
 
     def parse_floor_plan(self, file_bytes: bytes, filename: str) -> Dict[str, Any]:
         """Parse uploaded floor plan file (DXF/DWG/Image)"""
