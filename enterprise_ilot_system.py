@@ -13,8 +13,12 @@ import math
 import random
 from shapely.geometry import Polygon, Point, LineString, box, MultiPolygon
 from shapely.ops import unary_union
-import ezdxf
-from ezdxf import recover
+try:
+    import ezdxf
+    from ezdxf import recover
+except ImportError:
+    ezdxf = None
+    recover = None
 import gc
 from datetime import datetime
 import base64
@@ -165,24 +169,67 @@ class EnterpriseIlotEngine:
         self.build_date = datetime.now().strftime("%Y-%m-%d")
 
     def parse_dxf_file(self, file_bytes: bytes, filename: str) -> Dict[str, Any]:
-        """Advanced DXF parsing with enterprise features"""
+        """Advanced DXF/DWG parsing with enterprise features"""
         
-        with tempfile.NamedTemporaryFile(suffix='.dxf', delete=False) as tmp_file:
+        if ezdxf is None:
+            st.error("❌ DXF processing library not available")
+            st.info("Installing required dependencies...")
+            return {'success': False, 'error': 'DXF library not available'}
+        
+        # Determine file extension
+        file_ext = '.dwg' if filename.lower().endswith('.dwg') else '.dxf'
+        
+        with tempfile.NamedTemporaryFile(suffix=file_ext, delete=False) as tmp_file:
             tmp_file.write(file_bytes)
             tmp_file_path = tmp_file.name
 
         try:
+            # For DWG files, we need to convert to DXF first
+            if file_ext == '.dwg':
+                st.info("🔄 Processing DWG file...")
+                st.error("DWG files require conversion to DXF format. Please export your file as DXF from your CAD software.")
+                return {'success': False, 'error': 'DWG format not directly supported. Please use DXF format.'}
+            
+            # Try standard DXF reading
+            doc = None
             try:
+                # Use open() to read file content properly
+                with open(tmp_file_path, 'rb') as f:
+                    # Check if file is actually a DXF by looking for DXF header
+                    content = f.read()
+                    if not content.startswith(b'0\r\nSECTION') and not content.startswith(b'0\nSECTION'):
+                        # Try to detect if it's text-based DXF
+                        try:
+                            text_content = content.decode('utf-8', errors='ignore')
+                            if '0\nSECTION' not in text_content and 'AutoCAD' not in text_content:
+                                st.error("❌ File does not appear to be a valid DXF file")
+                                st.info("Please ensure you're uploading a DXF file exported from CAD software")
+                                return {'success': False, 'error': 'Invalid DXF file format'}
+                        except:
+                            pass
+                
+                # Try to read the DXF file
                 doc = ezdxf.readfile(tmp_file_path)
                 st.success("✅ DXF file loaded successfully")
             except Exception as e:
-                # Try recovery mode
-                try:
-                    doc, _ = recover.readfile(tmp_file_path)
-                    st.warning("⚠️ DXF file recovered with structural issues")
-                except Exception as recovery_error:
-                    st.error(f"❌ Cannot read DXF file: {str(e)}. Using enterprise demo data instead.")
-                    return self._create_enterprise_demo_data()
+                # Try recovery mode for problematic files
+                if recover:
+                    try:
+                        doc, auditor = recover.readfile(tmp_file_path)
+                        if auditor and hasattr(auditor, 'has_errors') and auditor.has_errors:
+                            st.warning(f"⚠️ DXF file recovered with errors")
+                        else:
+                            st.success("✅ DXF file recovered successfully")
+                    except Exception as recovery_error:
+                        st.error(f"❌ Cannot read DXF file: {str(e)}")
+                        st.info("Please ensure:")
+                        st.info("• File is saved as DXF format (not DWG)")
+                        st.info("• DXF version is R12 or later")
+                        st.info("• File is not corrupted")
+                        return {'success': False, 'error': str(e)}
+                else:
+                    st.error(f"❌ Cannot read DXF file: {str(e)}")
+                    return {'success': False, 'error': str(e)}
 
             modelspace = doc.modelspace()
             
@@ -267,7 +314,7 @@ class EnterpriseIlotEngine:
             
         except Exception as e:
             st.error(f"Error processing file: {str(e)}")
-            return self._create_enterprise_demo_data()
+            return {'success': False, 'error': str(e)}
         finally:
             try:
                 os.unlink(tmp_file_path)
@@ -339,73 +386,24 @@ class EnterpriseIlotEngine:
         except:
             return 0
 
-    def _create_enterprise_demo_data(self) -> Dict[str, Any]:
-        """Create comprehensive demo data for enterprise showcase"""
-        
-        # Large complex building layout
-        walls = []
-        
-        # Main building perimeter
-        perimeter = [
-            {'coords': [(0, 0), (100, 0)], 'color': 7, 'layer': 'WALLS', 'type': 'LINE'},
-            {'coords': [(100, 0), (100, 60)], 'color': 7, 'layer': 'WALLS', 'type': 'LINE'},
-            {'coords': [(100, 60), (0, 60)], 'color': 7, 'layer': 'WALLS', 'type': 'LINE'},
-            {'coords': [(0, 60), (0, 0)], 'color': 7, 'layer': 'WALLS', 'type': 'LINE'},
-        ]
-        walls.extend(perimeter)
-        
-        # Internal structure
-        internal_walls = [
-            {'coords': [(25, 0), (25, 60)], 'color': 7, 'layer': 'WALLS', 'type': 'LINE'},
-            {'coords': [(50, 0), (50, 60)], 'color': 7, 'layer': 'WALLS', 'type': 'LINE'},
-            {'coords': [(75, 0), (75, 60)], 'color': 7, 'layer': 'WALLS', 'type': 'LINE'},
-            {'coords': [(0, 20), (100, 20)], 'color': 7, 'layer': 'WALLS', 'type': 'LINE'},
-            {'coords': [(0, 40), (100, 40)], 'color': 7, 'layer': 'WALLS', 'type': 'LINE'},
-        ]
-        walls.extend(internal_walls)
-        
-        # Restricted areas (stairs, elevators)
-        restricted_areas = [
-            {'coords': [(5, 5), (15, 5), (15, 15), (5, 15), (5, 5)], 'color': 5, 'layer': 'STAIRS', 'type': 'LWPOLYLINE'},
-            {'coords': [(85, 5), (95, 5), (95, 15), (85, 15), (85, 5)], 'color': 5, 'layer': 'ELEVATOR', 'type': 'LWPOLYLINE'},
-            {'coords': [(5, 45), (15, 45), (15, 55), (5, 55), (5, 45)], 'color': 5, 'layer': 'STAIRS', 'type': 'LWPOLYLINE'},
-            {'coords': [(85, 45), (95, 45), (95, 55), (85, 55), (85, 45)], 'color': 5, 'layer': 'ELEVATOR', 'type': 'LWPOLYLINE'},
-        ]
-        
-        # Entrances
-        entrances = [
-            {'coords': [(48, 0), (52, 0)], 'color': 1, 'layer': 'ENTRANCE', 'type': 'LINE'},
-            {'coords': [(0, 28), (0, 32)], 'color': 1, 'layer': 'ENTRANCE', 'type': 'LINE'},
-            {'coords': [(100, 28), (100, 32)], 'color': 1, 'layer': 'ENTRANCE', 'type': 'LINE'},
-            {'coords': [(48, 60), (52, 60)], 'color': 1, 'layer': 'ENTRANCE', 'type': 'LINE'},
-        ]
-        
-        self.plan_bounds = {
-            'min_x': 0, 'max_x': 100, 'min_y': 0, 'max_y': 60,
-            'width': 100, 'height': 60, 'area': 6000
-        }
-        
-        self.walls = walls
-        self.restricted_areas = restricted_areas
-        self.entrances = entrances
-        
-        self.parsing_stats = {
-            'layers': {'WALLS': len(walls), 'STAIRS': 2, 'ELEVATOR': 2, 'ENTRANCE': 4},
-            'colors': {7: len(walls), 5: len(restricted_areas), 1: len(entrances)},
-            'entity_count': len(walls) + len(restricted_areas) + len(entrances),
-            'wall_count': len(walls),
-            'restricted_count': len(restricted_areas),
-            'entrance_count': len(entrances)
-        }
-        
-        return {
-            'walls': walls,
-            'restricted_areas': restricted_areas,
-            'entrances': entrances,
-            'plan_bounds': self.plan_bounds,
-            'parsing_stats': self.parsing_stats,
-            'success': True
-        }
+    def _validate_dxf_content(self, content: bytes) -> bool:
+        """Validate if the content is a valid DXF file"""
+        try:
+            # Check for DXF header signatures
+            if content.startswith(b'0\r\nSECTION') or content.startswith(b'0\nSECTION'):
+                return True
+            
+            # Try text-based check
+            try:
+                text_content = content.decode('utf-8', errors='ignore')
+                if any(marker in text_content for marker in ['0\nSECTION', 'AutoCAD', 'ENTITIES', 'HEADER']):
+                    return True
+            except:
+                pass
+                
+            return False
+        except:
+            return False
 
     def advanced_zone_calculation(self, buffer_distance: float = 1.0) -> List[Polygon]:
         """Advanced zone calculation with optimization"""
@@ -1288,10 +1286,8 @@ def main():
                     else:
                         st.error("❌ Failed to analyze plan")
             else:
-                with st.spinner("Loading enterprise demo..."):
-                    result = engine._create_enterprise_demo_data()
-                    st.session_state.plan_loaded = True
-                    st.info("📊 Using enterprise demonstration data")
+                st.error("❌ Please upload a DXF file to analyze")
+                st.info("This enterprise application requires real architectural files.")
         
         if st.button(get_text('place_ilots', language)):
             if hasattr(st.session_state, 'plan_loaded'):
@@ -1372,7 +1368,15 @@ def main():
                 fig = engine.create_enterprise_visualization(language)
                 st.plotly_chart(fig, use_container_width=True)
         else:
-            st.info("📁 Upload a DXF/DWG file or use enterprise demo data")
+            st.info("📁 Upload a DXF file to begin")
+            st.markdown("""
+                ### Getting Started:
+                1. Export your architectural plan as DXF format from your CAD software
+                2. Use the file uploader in the sidebar
+                3. Click 'Analyze Plan' to process the file
+                4. Configure îlot placement parameters
+                5. Generate optimized layout
+            """)
     
     with col2:
         st.subheader(get_text('statistics', language))

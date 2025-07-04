@@ -55,3 +55,4 @@ PyMuPDF
 opencv-python
 opencv-python-headless
 scikit-learn
+ezdxf
