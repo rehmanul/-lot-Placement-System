@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Enterprise Îlot Placement System
 
 ## Overview
@@ -178,3 +179,85 @@ Comprehensive data processing pipeline:
 - Geometric operations for spatial analysis
 - Computer vision for image-based zone detection
 - Optimization algorithms for space utilization
+=======
+# App Requirements Workspace
+
+## Overview
+
+This is a Streamlit-based web application designed to help users organize and document app requirements and ideas. The application provides a collaborative workspace for capturing project details, user stories, technical requirements, and other essential project planning information.
+
+## System Architecture
+
+### Frontend Architecture
+- **Framework**: Streamlit - A Python-based web framework for rapid prototyping and data applications
+- **Architecture Pattern**: Single-page application with session-based state management
+- **UI Components**: Native Streamlit components for forms, text inputs, and interactive elements
+- **State Management**: Streamlit's built-in session state for maintaining user data across interactions
+
+### Backend Architecture
+- **Runtime**: Python-based server-side application
+- **Data Processing**: In-memory data handling with JSON serialization
+- **Session Management**: Streamlit's session state mechanism for user data persistence during active sessions
+
+## Key Components
+
+### Core Application (app.py)
+- **Session State Management**: Handles user workspace data persistence during active sessions
+- **Data Export Functionality**: Provides JSON export capabilities for workspace data
+- **Workspace Management**: Includes functionality to clear and reset workspace data
+- **User Interface**: Streamlit-based UI with sidebar navigation and main content area
+
+### Data Structure
+The application manages the following data fields:
+- Project overview and target audience
+- Core features and user stories
+- Technical and non-functional requirements
+- Constraints, assumptions, and success criteria
+- Timeline, milestones, and additional notes
+- Metadata (creation and export timestamps)
+
+## Data Flow
+
+1. **User Input**: Users interact with Streamlit components to input project requirements
+2. **Session Storage**: Data is stored in Streamlit's session state for temporary persistence
+3. **Data Export**: Users can export their workspace data as JSON format
+4. **Workspace Management**: Users can clear workspace data when needed
+
+## External Dependencies
+
+### Core Dependencies
+- **Streamlit**: Web application framework
+- **Python Standard Library**: 
+  - `json`: For data serialization and export
+  - `datetime`: For timestamp management
+  - `io`: For file operations
+
+### Deployment Dependencies
+- Python 3.7+ runtime environment
+- Streamlit server for web hosting
+
+## Deployment Strategy
+
+### Development Environment
+- Local development using Streamlit's built-in development server
+- Hot reload capabilities for rapid iteration
+
+### Production Considerations
+- Stateless application design suitable for cloud deployment
+- No persistent database required - data exists only during active sessions
+- Scalable through Streamlit's deployment options (Streamlit Cloud, containerization)
+
+### Limitations
+- Data persistence limited to active sessions
+- No user authentication or multi-user support
+- No permanent data storage mechanism
+
+## User Preferences
+
+Preferred communication style: Simple, everyday language.
+
+## Changelog
+
+Changelog:
+- July 03, 2025. Initial setup
+>>>>>>> b49860d (Create a collaborative workspace for app ideas and requirements)

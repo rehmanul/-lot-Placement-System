@@ -1,4 +1,5 @@
 import streamlit as st
+<<<<<<< HEAD
 import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
@@ -31,10 +32,50 @@ from ilot_placement_engine import IlotPlacementEngine
 st.set_page_config(
     page_title="🏗️ Enterprise Îlot Placement System",
     page_icon="🏗️",
+=======
+import json
+from datetime import datetime
+import io
+
+# Initialize session state
+if 'workspace_data' not in st.session_state:
+    st.session_state.workspace_data = {
+        'project_overview': '',
+        'target_audience': '',
+        'core_features': '',
+        'user_stories': '',
+        'technical_requirements': '',
+        'non_functional_requirements': '',
+        'constraints_assumptions': '',
+        'success_criteria': '',
+        'timeline_milestones': '',
+        'additional_notes': '',
+        'created_at': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    }
+
+def export_workspace_data():
+    """Export workspace data as JSON"""
+    export_data = st.session_state.workspace_data.copy()
+    export_data['exported_at'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return json.dumps(export_data, indent=2)
+
+def clear_workspace():
+    """Clear all workspace data"""
+    for key in st.session_state.workspace_data:
+        if key != 'created_at':
+            st.session_state.workspace_data[key] = ''
+    st.rerun()
+
+# Page configuration
+st.set_page_config(
+    page_title="App Requirements Workspace",
+    page_icon="📋",
+>>>>>>> b49860d (Create a collaborative workspace for app ideas and requirements)
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
+<<<<<<< HEAD
 # Custom CSS for professional styling
 st.markdown("""
 <style>
@@ -1306,3 +1347,241 @@ def main():
 
 if __name__ == "__main__":
     main()
+=======
+# Main header
+st.title("📋 App Requirements & Ideas Workspace")
+st.markdown("*A collaborative space for organizing and discussing your app requirements*")
+
+# Sidebar for navigation and actions
+with st.sidebar:
+    st.header("Workspace Tools")
+    
+    # Export functionality
+    if st.button("📥 Export All Data", type="primary"):
+        export_json = export_workspace_data()
+        st.download_button(
+            label="💾 Download JSON",
+            data=export_json,
+            file_name=f"app_requirements_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
+            mime="application/json"
+        )
+    
+    # Clear workspace
+    if st.button("🗑️ Clear All Data", type="secondary"):
+        if st.session_state.get('confirm_clear', False):
+            clear_workspace()
+            st.session_state.confirm_clear = False
+            st.success("Workspace cleared!")
+        else:
+            st.session_state.confirm_clear = True
+            st.warning("Click again to confirm clearing all data")
+    
+    st.divider()
+    
+    # Workspace info
+    st.subheader("Session Info")
+    st.write(f"**Created:** {st.session_state.workspace_data['created_at']}")
+    
+    # Character count summary
+    total_chars = sum(len(str(value)) for value in st.session_state.workspace_data.values() if isinstance(value, str))
+    st.write(f"**Total Content:** {total_chars} characters")
+
+# Main content area
+col1, col2 = st.columns([2, 1])
+
+with col1:
+    # Project Overview Section
+    with st.expander("🎯 Project Overview", expanded=True):
+        st.markdown("""
+        **Prompts to consider:**
+        - What is the core problem your app solves?
+        - What is the main purpose and vision?
+        - Who are you building this for?
+        """)
+        
+        st.session_state.workspace_data['project_overview'] = st.text_area(
+            "Project Overview",
+            value=st.session_state.workspace_data['project_overview'],
+            height=150,
+            placeholder="Describe your app's main purpose, vision, and the problem it solves...",
+            label_visibility="collapsed"
+        )
+
+    # Target Audience Section
+    with st.expander("👥 Target Audience & Users"):
+        st.markdown("""
+        **Prompts to consider:**
+        - Who are your primary users?
+        - What are their pain points and needs?
+        - How tech-savvy are they?
+        - What devices will they use?
+        """)
+        
+        st.session_state.workspace_data['target_audience'] = st.text_area(
+            "Target Audience",
+            value=st.session_state.workspace_data['target_audience'],
+            height=120,
+            placeholder="Define your target users, their characteristics, needs, and behaviors...",
+            label_visibility="collapsed"
+        )
+
+    # Core Features Section
+    with st.expander("⚡ Core Features & Functionality"):
+        st.markdown("""
+        **Prompts to consider:**
+        - What are the must-have features?
+        - What features would be nice to have?
+        - How do users interact with each feature?
+        - What's the user flow for key actions?
+        """)
+        
+        st.session_state.workspace_data['core_features'] = st.text_area(
+            "Core Features",
+            value=st.session_state.workspace_data['core_features'],
+            height=150,
+            placeholder="List and describe the main features, prioritizing must-haves vs nice-to-haves...",
+            label_visibility="collapsed"
+        )
+
+    # User Stories Section
+    with st.expander("📖 User Stories & Use Cases"):
+        st.markdown("""
+        **Template:** "As a [user type], I want [goal] so that [benefit]"
+        
+        **Examples:**
+        - As a busy professional, I want to quickly log my expenses so that I can track my spending without interrupting my workflow
+        - As a team member, I want to share files with my colleagues so that we can collaborate effectively
+        """)
+        
+        st.session_state.workspace_data['user_stories'] = st.text_area(
+            "User Stories",
+            value=st.session_state.workspace_data['user_stories'],
+            height=150,
+            placeholder="Write user stories in the format: 'As a [user], I want [goal] so that [benefit]'...",
+            label_visibility="collapsed"
+        )
+
+with col2:
+    # Technical Requirements Section
+    with st.expander("🔧 Technical Requirements"):
+        st.markdown("""
+        **Consider:**
+        - Platform (web, mobile, desktop)
+        - Technology stack preferences
+        - Database requirements
+        - Third-party integrations
+        - Security requirements
+        """)
+        
+        st.session_state.workspace_data['technical_requirements'] = st.text_area(
+            "Technical Requirements",
+            value=st.session_state.workspace_data['technical_requirements'],
+            height=120,
+            placeholder="Specify technical constraints, preferred technologies, integrations needed...",
+            label_visibility="collapsed"
+        )
+
+    # Non-Functional Requirements Section
+    with st.expander("📊 Non-Functional Requirements"):
+        st.markdown("""
+        **Consider:**
+        - Performance expectations
+        - Scalability needs
+        - Availability requirements
+        - Usability standards
+        - Compliance requirements
+        """)
+        
+        st.session_state.workspace_data['non_functional_requirements'] = st.text_area(
+            "Non-Functional Requirements",
+            value=st.session_state.workspace_data['non_functional_requirements'],
+            height=120,
+            placeholder="Define performance, scalability, security, and other quality requirements...",
+            label_visibility="collapsed"
+        )
+
+    # Constraints & Assumptions Section
+    with st.expander("⚠️ Constraints & Assumptions"):
+        st.markdown("""
+        **Consider:**
+        - Budget limitations
+        - Time constraints
+        - Resource availability
+        - Technical limitations
+        - Business constraints
+        """)
+        
+        st.session_state.workspace_data['constraints_assumptions'] = st.text_area(
+            "Constraints & Assumptions",
+            value=st.session_state.workspace_data['constraints_assumptions'],
+            height=120,
+            placeholder="List any constraints, assumptions, or limitations that affect the project...",
+            label_visibility="collapsed"
+        )
+
+# Full-width sections
+st.divider()
+
+# Success Criteria Section
+with st.expander("🎯 Success Criteria & Metrics"):
+    st.markdown("""
+    **Prompts to consider:**
+    - How will you measure success?
+    - What are your key performance indicators?
+    - What user adoption metrics matter?
+    - How will you know if the app is solving the problem?
+    """)
+    
+    st.session_state.workspace_data['success_criteria'] = st.text_area(
+        "Success Criteria",
+        value=st.session_state.workspace_data['success_criteria'],
+        height=100,
+        placeholder="Define how you'll measure success, key metrics, and success indicators...",
+        label_visibility="collapsed"
+    )
+
+# Timeline & Milestones Section
+with st.expander("📅 Timeline & Milestones"):
+    st.markdown("""
+    **Consider:**
+    - Project phases and milestones
+    - Key deliverables and deadlines
+    - Dependencies between features
+    - Testing and launch timeline
+    """)
+    
+    st.session_state.workspace_data['timeline_milestones'] = st.text_area(
+        "Timeline & Milestones",
+        value=st.session_state.workspace_data['timeline_milestones'],
+        height=100,
+        placeholder="Outline project phases, key milestones, and important deadlines...",
+        label_visibility="collapsed"
+    )
+
+# Additional Notes Section
+with st.expander("📝 Additional Notes & Ideas"):
+    st.markdown("""
+    **This is your space for:**
+    - Brainstorming and rough ideas
+    - Questions that need research
+    - Inspiration and references
+    - Future enhancement ideas
+    """)
+    
+    st.session_state.workspace_data['additional_notes'] = st.text_area(
+        "Additional Notes",
+        value=st.session_state.workspace_data['additional_notes'],
+        height=120,
+        placeholder="Capture any additional thoughts, ideas, questions, or references...",
+        label_visibility="collapsed"
+    )
+
+# Footer
+st.divider()
+st.markdown("""
+<div style='text-align: center; color: #666; font-size: 0.9em;'>
+    💡 <strong>Tips:</strong> Use the expandable sections to focus on one area at a time. 
+    Your work is automatically saved in this session. Don't forget to export your data before closing!
+</div>
+""", unsafe_allow_html=True)
+>>>>>>> b49860d (Create a collaborative workspace for app ideas and requirements)
