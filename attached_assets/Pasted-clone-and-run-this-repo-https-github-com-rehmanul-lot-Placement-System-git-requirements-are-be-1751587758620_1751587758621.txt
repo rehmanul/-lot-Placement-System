@@ -1,0 +1,78 @@
+clone and run this repo https://github.com/rehmanul/-lot-Placement-System.git
+
+requirements are below
+need full 100% same precise enterprise grade professional real app
+no fallback/demo/placeholder dummy should present here
+no minimal or basic is accepted here
+only full mostly advanced with below requirements:
+
+Expected Functionality
+
+Loading the Plan
+The plan includes:
+Walls (black lines)
+
+Restricted areas (light blue, e.g. stairs, elevators)
+
+Entrances/Exits (in red) — no îlot should be placed touching these areas
+
+Îlot Placement Rules
+The user can define a layout profile, for example:
+shell
+CopierModifier
+10% of îlots between 0 and 1 m²
+25% of îlots between 1 and 3 m²
+30% of îlots between 3 and 5 m²
+35% of îlots between 5 and 10 m²
+The application must:
+
+Generate the number of îlots based on these proportions
+
+Place them automatically inside available zones
+
+Avoid red and blue areas
+
+Allow îlots to touch black walls, except near entrances/exits
+
+Corridors Between Îlots
+If two rows of îlots face each other, a mandatory corridor must be placed between them.
+The corridor must touch both îlot rows but must not overlap any îlot.
+
+The corridor width should be configurable.
+
+🎯 Expected Output
+The result should look like the second image I sent:
+
+Îlots are neatly arranged
+
+All constraints (red/blue zones) are respected
+
+Corridors are added automatically
+
+No overlaps between îlots
+
+🛠 Required Features in the App
+Load a DXF file (or layered image)
+
+Detect zones: walls / restricted / entrances
+
+Allow user to input îlot proportions
+
+Automatically place îlots with:
+
+Space optimization
+
+Constraint compliance
+
+2D visualization (with color codes as in the images)
+
+Export result (PDF or image)
+
+📎 Attachments
+First image: empty floor plan with legend
+
+Second image: expected result with îlots and corridors
+
+do the best advanced real
+
+all type of filemust support and will work originally for unique files

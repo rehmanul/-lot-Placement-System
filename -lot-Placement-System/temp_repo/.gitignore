@@ -1,0 +1,38 @@
+# Executables and large files
+*.exe
+*.msi
+*.dmg
+*.pkg
+
+# Build artifacts
+build/
+dist/
+*.spec
+__pycache__/
+*.pyc
+*.pyo
+
+# Logs
+*.log
+app.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Large installer files
+AI_Architectural_Analyzer_Setup.exe
+
+# PyInstaller
+*.manifest
+*.exe.manifest

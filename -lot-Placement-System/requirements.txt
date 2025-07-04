@@ -1,0 +1,36 @@
+
+streamlit>=1.28.0
+plotly>=5.15.0
+pandas>=2.0.0
+numpy>=1.24.0
+shapely>=2.0.0
+ezdxf>=1.1.0
+Pillow>=10.0.0
+python-docx>=0.8.11
+openpyxl>=3.1.0
+reportlab>=4.0.0
+scipy>=1.11.0
+opencv-python>=4.8.0
+<<<<<<< HEAD
+ezdxf
+fitz
+fpdf2
+google-generativeai
+matplotlib
+networkx
+numpy
+opencv-python
+openpyxl
+pandas
+Pillow
+plotly
+psutil
+reportlab
+scikit-learn
+scipy
+shapely
+sqlalchemy
+streamlit
+xlsxwriter
+=======
+>>>>>>> d9a3dfcdf70c971baab32a146dc15b622ed329ee

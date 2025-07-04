@@ -1,5 +1,6 @@
 [server]
 <<<<<<< HEAD
+<<<<<<< HEAD
 headless = true
 address = "0.0.0.0"
 port = 5000
@@ -16,3 +17,8 @@ toolbarMode = "minimal"
 gatherUsageStats = false
 serverAddress = "0.0.0.0"
 >>>>>>> d9a3dfcdf70c971baab32a146dc15b622ed329ee
+=======
+headless = true
+address = "0.0.0.0"
+port = 5000
+>>>>>>> b49860d (Create a collaborative workspace for app ideas and requirements)

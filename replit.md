@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+<<<<<<< HEAD
 # Enterprise Îlot Placement System
 
 ## Overview
@@ -178,3 +180,113 @@ Comprehensive data processing pipeline:
 - Geometric operations for spatial analysis
 - Computer vision for image-based zone detection
 - Optimization algorithms for space utilization
+=======
+# App Requirements Workspace
+=======
+# Enterprise Îlot Placement System
+>>>>>>> 2b57e5d (Created a checkpoint)
+
+## Overview
+
+This is an enterprise-grade Streamlit-based web application for professional floor plan analysis and îlot (island/unit) placement optimization. The system enables users to upload floor plans in various formats (DXF, DWG, PDF, images), automatically detect zones (walls, restricted areas, entrances), and generate optimal îlot placements according to user-defined size distributions while respecting spatial constraints.
+
+## System Architecture
+
+### Frontend Architecture
+- **Framework**: Streamlit - Professional web interface for spatial analysis applications
+- **Visualization**: Plotly for interactive 2D/3D floor plan visualization
+- **UI Design**: Enterprise-grade interface with custom CSS styling
+- **State Management**: Session-based state for floor plan data and placement results
+
+### Backend Architecture
+- **Runtime**: Python 3.11 with advanced spatial analysis libraries
+- **Spatial Processing**: Shapely for geometric operations and constraint validation
+- **CAD File Support**: ezdxf and dxfgrabber for DXF/DWG file parsing
+- **Optimization Engine**: Custom algorithms for îlot placement with corridor generation
+- **Export Capabilities**: PDF reports, DXF files, and image exports
+
+## Key Components
+
+### Core Application (app.py)
+- **Floor Plan Parser**: Handles multiple file formats (DXF, DWG, PDF, images)
+- **Zone Detection**: Identifies walls, restricted areas, and entrances/exits
+- **Îlot Placement Engine**: Optimizes placement based on size distributions
+- **Corridor Generation**: Automatically creates corridors between facing îlot rows
+- **Visualization System**: 2D floor plans, 3D views, and analytics dashboards
+- **Export System**: Multiple export formats for professional reporting
+
+### Spatial Analysis Features
+- **Zone Classification**:
+  - Walls (MUR) - black zones
+  - Restricted Areas (NO ENTREE) - light blue zones
+  - Entrances/Exits (ENTREE/SORTIE) - red zones
+  - Available Space - green zones
+- **Îlot Size Categories**:
+  - 0-1 m² (small units)
+  - 1-3 m² (medium units)
+  - 3-5 m² (large units)
+  - 5-10 m² (extra-large units)
+- **Constraint Validation**:
+  - Minimum distance from entrances
+  - No overlap with restricted areas
+  - Automatic corridor generation
+  - Space efficiency optimization
+
+- **Îlot Size Categories**:
+  - 0-1 m² (small units)
+  - 1-3 m² (medium units)
+  - 3-5 m² (large units)
+  - 5-10 m² (extra-large units)
+- **Constraint Validation**:
+  - Minimum distance from entrances
+  - No overlap with restricted areas
+  - Automatic corridor generation
+  - Space efficiency optimization
+
+## Data Flow
+
+1. **File Upload**: User uploads floor plan (DXF, DWG, PDF, or image)
+2. **Zone Detection**: System parses file and identifies walls, restricted areas, entrances
+3. **Configuration**: User sets îlot size distribution percentages and corridor settings
+4. **Optimization**: Placement engine generates optimal îlot positions
+5. **Visualization**: Interactive 2D/3D views display results
+6. **Export**: Results can be exported as PDF report, DXF file, or image
+
+## External Dependencies
+
+### Core Dependencies
+- **Streamlit**: Web application framework
+- **Python Standard Library**: 
+  - `json`: For data serialization and export
+  - `datetime`: For timestamp management
+  - `io`: For file operations
+
+### Deployment Dependencies
+- Python 3.7+ runtime environment
+- Streamlit server for web hosting
+
+## Deployment Strategy
+
+### Development Environment
+- Local development using Streamlit's built-in development server
+- Hot reload capabilities for rapid iteration
+
+### Production Considerations
+- Stateless application design suitable for cloud deployment
+- No persistent database required - data exists only during active sessions
+- Scalable through Streamlit's deployment options (Streamlit Cloud, containerization)
+
+### Limitations
+- Data persistence limited to active sessions
+- No user authentication or multi-user support
+- No permanent data storage mechanism
+
+## User Preferences
+
+Preferred communication style: Simple, everyday language.
+
+## Changelog
+
+Changelog:
+- July 03, 2025. Initial setup
+>>>>>>> b49860d (Create a collaborative workspace for app ideas and requirements)
