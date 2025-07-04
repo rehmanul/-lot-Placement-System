@@ -11,6 +11,10 @@ openpyxl>=3.1.0
 reportlab>=4.0.0
 scipy>=1.11.0
 <<<<<<< HEAD
+=======
+opencv-python>=4.8.0
+>>>>>>> origin/replit-agent
+<<<<<<< HEAD
 ezdxf
 fitz
 fpdf2
@@ -18,6 +22,10 @@ google-generativeai
 matplotlib
 networkx
 numpy
+<<<<<<< HEAD
+=======
+opencv-python
+>>>>>>> origin/replit-agent
 openpyxl
 pandas
 Pillow
@@ -32,6 +40,7 @@ streamlit
 xlsxwriter
 =======
 >>>>>>> d9a3dfcdf70c971baab32a146dc15b622ed329ee
+<<<<<<< HEAD
 ezdxf
 fpdf2
 google-generativeai
@@ -56,3 +65,5 @@ opencv-python
 opencv-python-headless
 scikit-learn
 ezdxf
+=======
+>>>>>>> origin/replit-agent

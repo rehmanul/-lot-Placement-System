@@ -1,8 +1,26 @@
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> b49860d (Create a collaborative workspace for app ideas and requirements)
+>>>>>>> origin/replit-agent
 modules = ["python-3.11"]
 
 [nix]
 channel = "stable-24_05"
+<<<<<<< HEAD
 packages = ["cairo", "ffmpeg-full", "freetype", "geos", "ghostscript", "glibcLocales", "gobject-introspection", "gtk3", "gumbo", "harfbuzz", "jbig2dec", "lcms2", "libGL", "libGLU", "libimagequant", "libjpeg", "libjpeg_turbo", "libtiff", "libwebp", "libxcrypt", "mupdf", "openjpeg", "pkg-config", "qhull", "swig", "tcl", "tk", "xcbuild", "xsimd", "zlib"]
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+packages = ["cairo", "ffmpeg-full", "freetype", "geos", "ghostscript", "glibcLocales", "gobject-introspection", "gtk3", "lcms2", "libGL", "libGLU", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "openjpeg", "pkg-config", "qhull", "tcl", "tk", "xsimd", "zlib"]
+=======
+>>>>>>> b49860d (Create a collaborative workspace for app ideas and requirements)
+=======
+packages = ["freetype", "geos", "glibcLocales", "lcms2", "libGL", "libGLU", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "openjpeg", "tcl", "tk", "zlib"]
+>>>>>>> 2b57e5d (Created a checkpoint)
+>>>>>>> origin/replit-agent
 
 [deployment]
 deploymentTarget = "autoscale"
@@ -18,17 +36,68 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
+<<<<<<< HEAD
 args = "Enterprise Ilot System"
 
 [[workflows.workflow]]
 name = "Enterprise Ilot System"
+=======
+args = "Streamlit App"
+
+[[workflows.workflow]]
+name = "Streamlit App"
+>>>>>>> origin/replit-agent
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
+<<<<<<< HEAD
 args = "streamlit run enterprise_ilot_system.py --server.port 5000"
 waitForPort = 5000
+=======
+args = "streamlit run app.py --server.port 5000"
+waitForPort = 5000
+<<<<<<< HEAD
+=======
+modules = ["python-3.12"]
+run = "streamlit run undefined"
+
+[nix]
+channel = "stable-24_05"
+packages = ["cairo", "ffmpeg-full", "freetype", "geos", "ghostscript", "glibcLocales", "gobject-introspection", "gtk3", "gumbo", "harfbuzz", "jbig2dec", "lcms2", "libimagequant", "libjpeg", "libjpeg_turbo", "libtiff", "libwebp", "libxcrypt", "mupdf", "openjpeg", "pkg-config", "qhull", "swig", "tcl", "tk", "xcbuild", "zlib"]
+
+[deployment]
+run = ["sh", "-c", "streamlit run undefined"]
+
+[workflows]
+runButton = "Run"
+
+[[workflows.workflow]]
+name = "Run"
+author = 44543542
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "streamlit run apps/streamlit_app.py --server.port 8080 --server.address 0.0.0.0"
+>>>>>>> d9a3dfcdf70c971baab32a146dc15b622ed329ee
+=======
+>>>>>>> b49860d (Create a collaborative workspace for app ideas and requirements)
+>>>>>>> origin/replit-agent
 
 [[ports]]
 localPort = 5000
 externalPort = 80
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+[[ports]]
+localPort = 8080
+externalPort = 8080
+>>>>>>> d9a3dfcdf70c971baab32a146dc15b622ed329ee
+=======
+>>>>>>> b49860d (Create a collaborative workspace for app ideas and requirements)
+>>>>>>> origin/replit-agent

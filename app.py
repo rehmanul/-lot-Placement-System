@@ -1,10 +1,21 @@
 import streamlit as st
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 2b57e5d (Created a checkpoint)
+>>>>>>> origin/replit-agent
 import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
 from plotly.subplots import make_subplots
 import pandas as pd
 from typing import List, Dict, Any, Tuple, Optional
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> origin/replit-agent
 import json
 import math
 import random
@@ -31,16 +42,65 @@ from ilot_placement_engine import IlotPlacementEngine
 st.set_page_config(
     page_title="🏗️ Enterprise Îlot Placement System",
     page_icon="🏗️",
+<<<<<<< HEAD
+=======
+=======
+=======
+>>>>>>> 2b57e5d (Created a checkpoint)
+import json
+import math
+import random
+from shapely.geometry import Polygon, Point, LineString, box, MultiPolygon
+from shapely.ops import unary_union
+import ezdxf
+from ezdxf import recover
+import tempfile
+import os
+from pathlib import Path
+import cv2
+from PIL import Image
+import io
+from datetime import datetime
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter, A4
+from reportlab.lib.colors import red, blue, black, green, orange, purple
+from reportlab.lib.units import inch
+import base64
+from dwg_parser import DWGParser
+from ilot_placement_engine import IlotPlacementEngine
+
+# Page configuration
+st.set_page_config(
+<<<<<<< HEAD
+    page_title="App Requirements Workspace",
+    page_icon="📋",
+>>>>>>> b49860d (Create a collaborative workspace for app ideas and requirements)
+=======
+    page_title="Enterprise Îlot Placement System",
+    page_icon="🏗️",
+>>>>>>> 2b57e5d (Created a checkpoint)
+>>>>>>> origin/replit-agent
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 2b57e5d (Created a checkpoint)
+>>>>>>> origin/replit-agent
 # Custom CSS for professional styling
 st.markdown("""
 <style>
     .main-header {
         background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
         color: white;
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> origin/replit-agent
         padding: 1rem;
         border-radius: 10px;
         margin-bottom: 2rem;
@@ -88,11 +148,56 @@ st.markdown("""
         color: white;
         border: none;
         border-radius: 8px;
+<<<<<<< HEAD
+=======
+=======
+        padding: 2rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    .metric-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        margin-bottom: 1rem;
+        border: 1px solid #e0e0e0;
+    }
+    .zone-legend {
+        display: flex;
+        gap: 20px;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 5px;
+        margin: 1rem 0;
+    }
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .legend-color {
+        width: 20px;
+        height: 20px;
+        border: 1px solid #333;
+    }
+    .stButton > button {
+        width: 100%;
+        background-color: #2a5298;
+        color: white;
+        border: none;
+>>>>>>> 2b57e5d (Created a checkpoint)
+>>>>>>> origin/replit-agent
         padding: 0.5rem 1rem;
         font-weight: bold;
         transition: all 0.3s;
     }
     .stButton > button:hover {
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> origin/replit-agent
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
@@ -1305,4 +1410,518 @@ def main():
     """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
+<<<<<<< HEAD
     main()
+=======
+    main()
+=======
+# Main header
+st.title("📋 App Requirements & Ideas Workspace")
+st.markdown("*A collaborative space for organizing and discussing your app requirements*")
+=======
+        background-color: #1e3c72;
+    }
+</style>
+""", unsafe_allow_html=True)
+>>>>>>> 2b57e5d (Created a checkpoint)
+
+# Initialize session state
+if 'floor_plan' not in st.session_state:
+    st.session_state.floor_plan = None
+if 'parsed_zones' not in st.session_state:
+    st.session_state.parsed_zones = None
+if 'placement_results' not in st.session_state:
+    st.session_state.placement_results = None
+if 'visualization' not in st.session_state:
+    st.session_state.visualization = None
+
+# Header
+st.markdown('<div class="main-header"><h1>🏗️ Enterprise Îlot Placement System</h1><p>Professional Grade Floor Plan Analysis & Optimization</p></div>', unsafe_allow_html=True)
+
+# Sidebar for configuration
+with st.sidebar:
+    st.header("⚙️ Configuration")
+    
+    # File upload
+    st.subheader("📁 Upload Floor Plan")
+    uploaded_file = st.file_uploader(
+        "Choose a DXF/DWG file",
+        type=['dxf', 'dwg', 'pdf', 'png', 'jpg', 'jpeg'],
+        help="Upload your floor plan in DXF, DWG, or image format"
+    )
+    
+    # Size distribution configuration
+    st.subheader("📏 Îlot Size Distribution")
+    
+    size_0_1 = st.slider("0-1 m² (%)", min_value=0, max_value=100, value=10)
+    size_1_3 = st.slider("1-3 m² (%)", min_value=0, max_value=100, value=25)
+    size_3_5 = st.slider("3-5 m² (%)", min_value=0, max_value=100, value=30)
+    size_5_10 = st.slider("5-10 m² (%)", min_value=0, max_value=100, value=35)
+    
+    total_percentage = size_0_1 + size_1_3 + size_3_5 + size_5_10
+    
+    if total_percentage != 100:
+        st.warning(f"Total percentage: {total_percentage}% (should be 100%)")
+    else:
+        st.success("✓ Distribution valid")
+    
+    # Corridor configuration
+    st.subheader("🚶 Corridor Settings")
+    corridor_width = st.number_input(
+        "Corridor Width (m)",
+        min_value=0.8,
+        max_value=3.0,
+        value=1.2,
+        step=0.1
+    )
+    
+    min_distance_entrance = st.number_input(
+        "Min Distance from Entrance (m)",
+        min_value=0.5,
+        max_value=5.0,
+        value=2.0,
+        step=0.5
+    )
+    
+    # Advanced settings
+    with st.expander("🔧 Advanced Settings"):
+        optimization_algorithm = st.selectbox(
+            "Optimization Algorithm",
+            ["Genetic Algorithm", "Simulated Annealing", "Grid-Based", "Force-Directed"]
+        )
+        
+        iterations = st.number_input(
+            "Optimization Iterations",
+            min_value=100,
+            max_value=10000,
+            value=1000,
+            step=100
+        )
+        
+        allow_rotation = st.checkbox("Allow Îlot Rotation", value=True)
+        snap_to_grid = st.checkbox("Snap to Grid", value=False)
+        
+        if snap_to_grid:
+            grid_size = st.number_input(
+                "Grid Size (m)",
+                min_value=0.1,
+                max_value=1.0,
+                value=0.25,
+                step=0.05
+            )
+
+# Main content area
+col1, col2 = st.columns([1, 1])
+
+with col1:
+    st.subheader("📊 Floor Plan Analysis")
+    
+    # Zone legend
+    st.markdown("""
+    <div class="zone-legend">
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: black;"></div>
+            <span>Walls (MUR)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: lightblue;"></div>
+            <span>Restricted Areas (NO ENTREE)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: red;"></div>
+            <span>Entrances/Exits (ENTREE/SORTIE)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: lightgreen;"></div>
+            <span>Available Space</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    if uploaded_file is not None:
+        # Process the uploaded file
+        try:
+            file_bytes = uploaded_file.read()
+            filename = uploaded_file.name
+            
+            with st.spinner("🔄 Parsing floor plan..."):
+                parser = DWGParser()
+                zones = parser.parse_file_simple(file_bytes, filename)
+                
+                if zones:
+                    st.session_state.parsed_zones = zones
+                    st.success(f"✓ Successfully parsed {len(zones)} zones from floor plan")
+                    
+                    # Display zone statistics
+                    zone_stats = {}
+                    for zone in zones:
+                        zone_type = zone.get('zone_type', 'UNKNOWN')
+                        if zone_type not in zone_stats:
+                            zone_stats[zone_type] = 0
+                        zone_stats[zone_type] += 1
+                    
+                    st.markdown('<div class="metric-card">', unsafe_allow_html=True)
+                    st.write("**Zone Analysis:**")
+                    for zone_type, count in zone_stats.items():
+                        st.write(f"• {zone_type}: {count} zones")
+                    st.markdown('</div>', unsafe_allow_html=True)
+                else:
+                    st.error("❌ Failed to parse floor plan. Please ensure the file is valid.")
+        except Exception as e:
+            st.error(f"❌ Error processing file: {str(e)}")
+    else:
+        st.info("👆 Please upload a floor plan to begin")
+
+with col2:
+    st.subheader("🎯 Îlot Placement")
+    
+    if st.session_state.parsed_zones:
+        # Calculate button
+        if st.button("🚀 Generate Îlot Placement", type="primary"):
+            with st.spinner("🔄 Optimizing îlot placement..."):
+                # Prepare distribution
+                distribution = {
+                    '0-1': size_0_1,
+                    '1-3': size_1_3,
+                    '3-5': size_3_5,
+                    '5-10': size_5_10
+                }
+                
+                # Calculate total available area
+                total_area = sum(zone.get('area', 0) for zone in st.session_state.parsed_zones 
+                               if zone.get('zone_type', '') in ['AVAILABLE', 'MAIN_FLOOR', 'ROOM'])
+                
+                # Initialize placement engine
+                engine = IlotPlacementEngine()
+                engine.corridor_width = corridor_width
+                engine.min_distance_from_entrance = min_distance_entrance
+                
+                # Place îlots
+                results = engine.place_ilots_with_distribution(
+                    st.session_state.parsed_zones,
+                    distribution,
+                    total_area,
+                    corridor_width
+                )
+                
+                if 'error' not in results:
+                    st.session_state.placement_results = results
+                    st.success("✓ Îlot placement completed successfully!")
+                    
+                    # Display statistics
+                    st.markdown('<div class="metric-card">', unsafe_allow_html=True)
+                    st.write("**Placement Statistics:**")
+                    stats = results.get('statistics', {})
+                    st.metric("Total Îlots Placed", stats.get('total_ilots', 0))
+                    st.metric("Total Area Used", f"{stats.get('total_area_used', 0):.2f} m²")
+                    st.metric("Space Efficiency", f"{stats.get('space_efficiency', 0)*100:.1f}%")
+                    
+                    # Show achieved distribution
+                    st.write("**Achieved Distribution:**")
+                    achieved = stats.get('distribution_achieved', {})
+                    for size_range, percentage in achieved.items():
+                        st.write(f"• {size_range} m²: {percentage:.1f}%")
+                    st.markdown('</div>', unsafe_allow_html=True)
+                else:
+                    st.error(f"❌ {results['error']}")
+
+# Visualization section
+if st.session_state.placement_results:
+    st.divider()
+    st.subheader("📈 Visualization")
+    
+    # Create tabs for different views
+    tab1, tab2, tab3 = st.tabs(["2D Floor Plan", "3D View", "Analytics"])
+    
+    with tab1:
+        # Create 2D visualization
+        fig = go.Figure()
+        
+        # Draw walls and zones
+        for zone in st.session_state.parsed_zones:
+            if 'geometry' in zone:
+                geom = zone['geometry']
+                zone_type = zone.get('zone_type', 'AVAILABLE')
+                
+                # Set color based on zone type
+                if zone_type == 'MUR':
+                    color = 'black'
+                elif zone_type == 'NO_ENTREE':
+                    color = 'lightblue'
+                elif zone_type == 'ENTREE_SORTIE':
+                    color = 'red'
+                else:
+                    color = 'lightgray'
+                
+                if isinstance(geom, dict) and 'type' in geom:
+                    if geom['type'] == 'Polygon':
+                        coords = geom['coordinates'][0]
+                        x_coords = [c[0] for c in coords]
+                        y_coords = [c[1] for c in coords]
+                        
+                        fig.add_trace(go.Scatter(
+                            x=x_coords + [x_coords[0]],
+                            y=y_coords + [y_coords[0]],
+                            mode='lines',
+                            line=dict(color=color, width=2),
+                            fill='toself',
+                            fillcolor=color,
+                            opacity=0.3,
+                            name=zone_type,
+                            showlegend=False
+                        ))
+        
+        # Draw placed îlots
+        if 'placed_ilots' in st.session_state.placement_results:
+            for i, ilot in enumerate(st.session_state.placement_results['placed_ilots']):
+                x = ilot['x']
+                y = ilot['y']
+                width = ilot['width']
+                height = ilot['height']
+                
+                # Draw îlot rectangle
+                fig.add_trace(go.Scatter(
+                    x=[x, x+width, x+width, x, x],
+                    y=[y, y, y+height, y+height, y],
+                    mode='lines',
+                    line=dict(color='darkgreen', width=2),
+                    fill='toself',
+                    fillcolor='lightgreen',
+                    name=f"Îlot {i+1}",
+                    showlegend=False,
+                    hovertext=f"Îlot {i+1}<br>Area: {ilot['area']:.2f} m²<br>Size Category: {ilot.get('size_category', 'N/A')}",
+                    hoverinfo='text'
+                ))
+                
+                # Add îlot label
+                fig.add_annotation(
+                    x=x + width/2,
+                    y=y + height/2,
+                    text=f"{ilot['area']:.1f}",
+                    showarrow=False,
+                    font=dict(size=8)
+                )
+        
+        # Draw corridors
+        if 'corridors' in st.session_state.placement_results:
+            for corridor in st.session_state.placement_results['corridors']:
+                if 'geometry' in corridor:
+                    geom = corridor['geometry']
+                    if isinstance(geom, dict) and geom['type'] == 'Polygon':
+                        coords = geom['coordinates'][0]
+                        x_coords = [c[0] for c in coords]
+                        y_coords = [c[1] for c in coords]
+                        
+                        fig.add_trace(go.Scatter(
+                            x=x_coords + [x_coords[0]],
+                            y=y_coords + [y_coords[0]],
+                            mode='lines',
+                            line=dict(color='orange', width=1, dash='dash'),
+                            fill='toself',
+                            fillcolor='orange',
+                            opacity=0.2,
+                            name='Corridor',
+                            showlegend=False
+                        ))
+        
+        # Update layout
+        fig.update_layout(
+            title="Floor Plan with Îlot Placement",
+            xaxis=dict(title="X (meters)", scaleanchor="y", scaleratio=1),
+            yaxis=dict(title="Y (meters)"),
+            height=600,
+            showlegend=False,
+            hovermode='closest'
+        )
+        
+        st.plotly_chart(fig, use_container_width=True)
+    
+    with tab2:
+        # Create 3D visualization
+        fig_3d = go.Figure()
+        
+        # Add 3D îlots
+        if 'placed_ilots' in st.session_state.placement_results:
+            for i, ilot in enumerate(st.session_state.placement_results['placed_ilots']):
+                x = ilot['x']
+                y = ilot['y']
+                width = ilot['width']
+                height = ilot['height']
+                z_height = min(ilot['area'] / 2, 3)  # Height based on area
+                
+                # Create 3D box vertices
+                vertices = [
+                    [x, y, 0], [x+width, y, 0], [x+width, y+height, 0], [x, y+height, 0],
+                    [x, y, z_height], [x+width, y, z_height], [x+width, y+height, z_height], [x, y+height, z_height]
+                ]
+                
+                # Define faces
+                faces = [
+                    [0, 1, 5, 4], [1, 2, 6, 5], [2, 3, 7, 6], [3, 0, 4, 7],  # Sides
+                    [0, 1, 2, 3], [4, 5, 6, 7]  # Bottom and top
+                ]
+                
+                for face in faces:
+                    face_vertices = [vertices[i] for i in face]
+                    x_coords = [v[0] for v in face_vertices] + [face_vertices[0][0]]
+                    y_coords = [v[1] for v in face_vertices] + [face_vertices[0][1]]
+                    z_coords = [v[2] for v in face_vertices] + [face_vertices[0][2]]
+                    
+                    fig_3d.add_trace(go.Scatter3d(
+                        x=x_coords,
+                        y=y_coords,
+                        z=z_coords,
+                        mode='lines',
+                        line=dict(color='green', width=2),
+                        showlegend=False,
+                        hovertext=f"Îlot {i+1}<br>Area: {ilot['area']:.2f} m²"
+                    ))
+        
+        fig_3d.update_layout(
+            title="3D Visualization of Îlot Placement",
+            scene=dict(
+                xaxis_title="X (m)",
+                yaxis_title="Y (m)",
+                zaxis_title="Height (m)",
+                aspectmode='manual',
+                aspectratio=dict(x=1, y=1, z=0.5)
+            ),
+            height=600
+        )
+        
+        st.plotly_chart(fig_3d, use_container_width=True)
+    
+    with tab3:
+        # Analytics dashboard
+        col_a1, col_a2 = st.columns(2)
+        
+        with col_a1:
+            # Size distribution pie chart
+            if 'distribution_achieved' in st.session_state.placement_results['statistics']:
+                achieved = st.session_state.placement_results['statistics']['distribution_achieved']
+                
+                fig_pie = go.Figure(data=[go.Pie(
+                    labels=list(achieved.keys()),
+                    values=list(achieved.values()),
+                    hole=0.3
+                )])
+                
+                fig_pie.update_layout(
+                    title="Achieved Size Distribution",
+                    height=300
+                )
+                
+                st.plotly_chart(fig_pie, use_container_width=True)
+        
+        with col_a2:
+            # Efficiency metrics
+            stats = st.session_state.placement_results['statistics']
+            
+            fig_metrics = go.Figure()
+            
+            categories = ['Space Efficiency', 'Placement Success', 'Corridor Coverage']
+            values = [
+                stats.get('space_efficiency', 0) * 100,
+                (stats.get('total_ilots', 0) / max(sum(distribution.values()), 1)) * 100,
+                len(st.session_state.placement_results.get('corridors', [])) * 10
+            ]
+            
+            fig_metrics.add_trace(go.Bar(
+                x=categories,
+                y=values,
+                marker_color=['green', 'blue', 'orange']
+            ))
+            
+            fig_metrics.update_layout(
+                title="Performance Metrics",
+                yaxis_title="Percentage (%)",
+                height=300
+            )
+            
+            st.plotly_chart(fig_metrics, use_container_width=True)
+
+# Export section
+if st.session_state.placement_results:
+    st.divider()
+    st.subheader("📤 Export Results")
+    
+    col_export1, col_export2, col_export3 = st.columns(3)
+    
+    with col_export1:
+        if st.button("📄 Export as PDF"):
+            # Generate PDF report
+            buffer = io.BytesIO()
+            c = canvas.Canvas(buffer, pagesize=A4)
+            
+            # Add title
+            c.setFont("Helvetica-Bold", 16)
+            c.drawString(50, 800, "Îlot Placement Report")
+            
+            # Add statistics
+            c.setFont("Helvetica", 12)
+            y_position = 750
+            stats = st.session_state.placement_results['statistics']
+            
+            c.drawString(50, y_position, f"Total Îlots: {stats.get('total_ilots', 0)}")
+            y_position -= 20
+            c.drawString(50, y_position, f"Total Area Used: {stats.get('total_area_used', 0):.2f} m²")
+            y_position -= 20
+            c.drawString(50, y_position, f"Space Efficiency: {stats.get('space_efficiency', 0)*100:.1f}%")
+            
+            # Add timestamp
+            y_position -= 40
+            c.drawString(50, y_position, f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+            
+            c.save()
+            buffer.seek(0)
+            
+            st.download_button(
+                label="Download PDF Report",
+                data=buffer,
+                file_name=f"ilot_placement_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
+                mime="application/pdf"
+            )
+    
+    with col_export2:
+        if st.button("🖼️ Export as Image"):
+            # Export current visualization as image
+            st.info("Image export will capture the current 2D floor plan view")
+    
+    with col_export3:
+        if st.button("📊 Export as DXF"):
+            # Generate DXF file with placed îlots
+            doc = ezdxf.new('R2010')
+            msp = doc.modelspace()
+            
+            # Add îlots to DXF
+            for ilot in st.session_state.placement_results['placed_ilots']:
+                msp.add_lwpolyline([
+                    (ilot['x'], ilot['y']),
+                    (ilot['x'] + ilot['width'], ilot['y']),
+                    (ilot['x'] + ilot['width'], ilot['y'] + ilot['height']),
+                    (ilot['x'], ilot['y'] + ilot['height']),
+                    (ilot['x'], ilot['y'])
+                ])
+            
+            # Save to buffer
+            buffer = io.BytesIO()
+            doc.write(buffer)
+            buffer.seek(0)
+            
+            st.download_button(
+                label="Download DXF File",
+                data=buffer,
+                file_name=f"ilot_placement_{datetime.now().strftime('%Y%m%d_%H%M%S')}.dxf",
+                mime="application/octet-stream"
+            )
+
+# Footer
+st.divider()
+st.markdown("""
+<div style='text-align: center; color: #666; font-size: 0.9em; padding: 2rem;'>
+    <p>Enterprise Îlot Placement System v2.0 | Professional Grade Floor Plan Optimization</p>
+    <p>© 2025 - Built with cutting-edge spatial analysis algorithms</p>
+</div>
+""", unsafe_allow_html=True)
+>>>>>>> b49860d (Create a collaborative workspace for app ideas and requirements)
+>>>>>>> origin/replit-agent

@@ -4,5 +4,17 @@ version = "0.1.0"
 description = "Add your description here"
 requires-python = ">=3.11"
 dependencies = [
+<<<<<<< HEAD
+=======
+    "dxfgrabber>=1.0.1",
+    "ezdxf>=1.4.2",
+    "numpy>=2.3.1",
+    "opencv-python>=4.11.0.86",
+    "pandas>=2.3.0",
+    "pillow>=11.3.0",
+    "plotly>=6.2.0",
+    "reportlab>=4.4.2",
+    "shapely>=2.1.1",
+>>>>>>> origin/replit-agent
     "streamlit>=1.46.1",
 ]
