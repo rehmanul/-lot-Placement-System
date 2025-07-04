@@ -1171,14 +1171,18 @@ def main():
     
     engine = st.session_state.engine
     
-    # Header section outside margin - centered
+    # Header section - responsive scrolling, balanced styling
     st.markdown("""
-        <div style='position: fixed; top: 0; left: 0; right: 0; z-index: 999; background: white; 
-                    text-align: center; padding: 1rem 0; border-bottom: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
-            <h1 style='font-size: 2rem; margin: 0; color: #2c3e50;'>🏗️ Enterprise Island Placement System</h1>
-            <h3 style='color: #666; font-weight: 400; margin: 0.2rem 0 0 0; font-size: 1rem;'>Professional Architectural Space Optimization Platform</h3>
+        <div style='text-align: center; padding: 1.5rem 0; margin-bottom: 1rem; 
+                    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); 
+                    border-radius: 10px; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);'>
+            <h1 style='font-size: 2.2rem; margin: 0; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.3);'>
+                🏗️ Enterprise Island Placement System
+            </h1>
+            <h3 style='color: #ecf0f1; font-weight: 400; margin: 0.5rem 0 0 0; font-size: 1.1rem; opacity: 0.9;'>
+                Professional Architectural Space Optimization Platform
+            </h3>
         </div>
-        <div style='height: 100px;'></div>
     """, unsafe_allow_html=True)
     
     # Sidebar for controls
@@ -1342,12 +1346,11 @@ def main():
                 else:
                     st.error("❌ Place îlots first")
     
-    # Adjust main content positioning (green zone higher)
+    # Main content styling adjustments
     st.markdown("""
         <style>
         .main .block-container {
-            padding-top: 0.5rem !important;
-            margin-top: -1rem;
+            padding-top: 1rem;
         }
         </style>
     """, unsafe_allow_html=True)
@@ -1459,15 +1462,15 @@ def main():
         st.write(f"- 🟣 **{get_text('pink_ilots', language)}**")
         st.write(f"- ⬜ **{get_text('gray_corridors', language)}**")
     
-    # Footer section (yellow zone) - centered at bottom
+    # Footer section - responsive scrolling, balanced styling
     st.markdown("""
-        <div style='position: fixed; bottom: 0; left: 0; right: 0; z-index: 999; background: #f8f9fa; 
-                    text-align: center; padding: 0.8rem 0; border-top: 1px solid #ddd; box-shadow: 0 -2px 4px rgba(0,0,0,0.1);'>
-            <small style='color: #666; font-size: 0.85rem;'>
-                Enterprise Îlot Placement System v{} | Build Date: {} | 🏢 Professional Architecture Solutions
-            </small>
+        <div style='text-align: center; padding: 1.2rem 0; margin-top: 2rem; 
+                    background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%); 
+                    border-radius: 10px; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);'>
+            <div style='color: #ecf0f1; font-size: 0.9rem; opacity: 0.95;'>
+                <strong>Enterprise Îlot Placement System</strong> v{} | Build Date: {} | 🏢 Professional Architecture Solutions
+            </div>
         </div>
-        <div style='height: 60px;'></div>
     """.format(engine.version, engine.build_date), unsafe_allow_html=True)
 
 
