@@ -1587,3 +1587,68 @@ class OptimizationEngine:
                     trial['furniture_positions'].append(target_positions[i].copy())
         
         return trial
+
+
+class AdvancedAIModels:
+    """
+    Main AI models controller that integrates all AI analysis components
+    """
+    
+    def __init__(self):
+        self.room_classifier = AdvancedRoomClassifier()
+        self.space_analyzer = SemanticSpaceAnalyzer()
+        self.optimization_engine = OptimizationEngine()
+        
+    def analyze_comprehensive(self, zones: List[Dict]) -> Dict:
+        """Comprehensive AI analysis of zones"""
+        results = {}
+        
+        try:
+            # Room classification
+            room_classifications = self.room_classifier.batch_classify(zones)
+            results['rooms'] = room_classifications
+            
+            # Spatial relationship analysis
+            space_graph = self.space_analyzer.build_space_graph(zones, room_classifications)
+            spatial_analysis = self.space_analyzer.analyze_spatial_relationships()
+            results['spatial_analysis'] = spatial_analysis
+            
+            # Optimization analysis
+            optimization_params = {
+                'optimization_method': 'simulated_annealing',
+                'box_size': [1.2, 0.8],
+                'margin': 0.3,
+                'allow_rotation': True
+            }
+            optimization_results = self.optimization_engine.optimize_furniture_placement(zones, optimization_params)
+            results['optimization'] = optimization_results
+            
+            # Calculate overall metrics
+            results['summary'] = self._calculate_summary_metrics(zones, room_classifications, spatial_analysis)
+            
+        except Exception as e:
+            results['error'] = str(e)
+            results['rooms'] = {}
+            results['spatial_analysis'] = {}
+            results['optimization'] = {'total_efficiency': 0.5}
+            
+        return results
+    
+    def _calculate_summary_metrics(self, zones: List[Dict], room_classifications: Dict, spatial_analysis: Dict) -> Dict:
+        """Calculate summary metrics"""
+        total_area = sum(zone.get('area', 0) for zone in zones)
+        classified_rooms = len([r for r in room_classifications.values() if r.get('confidence', 0) > 0.5])
+        
+        avg_confidence = 0
+        if room_classifications:
+            confidences = [r.get('confidence', 0) for r in room_classifications.values()]
+            avg_confidence = sum(confidences) / len(confidences) if confidences else 0
+            
+        return {
+            'total_zones': len(zones),
+            'total_area': total_area,
+            'classified_rooms': classified_rooms,
+            'average_confidence': avg_confidence,
+            'connectivity_score': spatial_analysis.get('graph_stats', {}).get('is_connected', False),
+            'analysis_quality': 'good' if avg_confidence > 0.7 else 'moderate' if avg_confidence > 0.5 else 'low'
+        }
