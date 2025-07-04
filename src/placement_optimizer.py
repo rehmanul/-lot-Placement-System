@@ -1,5 +1,8 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/replit-agent
 =======
 >>>>>>> origin/replit-agent
 """
@@ -47,6 +50,7 @@ class PlacementOptimizer:
         }
     
 <<<<<<< HEAD
+<<<<<<< HEAD
     def optimize_advanced(self, zones: List[Dict]) -> Dict[str, Any]:
         """
         Advanced optimization with default parameters
@@ -62,6 +66,8 @@ class PlacementOptimizer:
         
         return self.optimize_placements(zones, default_params)
     
+=======
+>>>>>>> origin/replit-agent
 =======
 >>>>>>> origin/replit-agent
     def optimize_placements(self, zones: List[Dict], parameters: Dict) -> Dict[str, Any]:
@@ -149,6 +155,7 @@ class PlacementOptimizer:
         return {
             'placements': placement_results,
 <<<<<<< HEAD
+<<<<<<< HEAD
             'total_boxes': total_items_placed,
             'total_area_utilized': total_area_utilized,
             'space_utilization': min(1.0, space_utilization),
@@ -158,11 +165,16 @@ class PlacementOptimizer:
                 'space_utilization': min(1.0, space_utilization),
                 'placement_quality': overall_efficiency * 0.95,
 =======
+=======
+>>>>>>> origin/replit-agent
             'total_items': total_items_placed,
             'total_area_utilized': total_area_utilized,
             'space_utilization': min(1.0, space_utilization),
             'placement_efficiency': overall_efficiency,
             'optimization_details': {
+<<<<<<< HEAD
+>>>>>>> origin/replit-agent
+=======
 >>>>>>> origin/replit-agent
                 'algorithm': 'Advanced Grid + Smart Positioning',
                 'placement_type': placement_type,
@@ -171,11 +183,14 @@ class PlacementOptimizer:
                 'rotation_enabled': allow_rotation,
                 'smart_spacing_enabled': smart_spacing
 <<<<<<< HEAD
+<<<<<<< HEAD
             },
             'parameters': {
                 'box_size': [item_length, item_width],
                 'margin': min_clearance,
                 'allow_rotation': allow_rotation
+=======
+>>>>>>> origin/replit-agent
 =======
 >>>>>>> origin/replit-agent
             }
@@ -225,7 +240,11 @@ class PlacementOptimizer:
                 'clearance': margin,
                 'zone_area': zone_polygon.area,
 <<<<<<< HEAD
+<<<<<<< HEAD
                 'suitability_score': self._calculate_accessibility_score(
+=======
+                'accessibility_score': self._calculate_accessibility_score(
+>>>>>>> origin/replit-agent
 =======
                 'accessibility_score': self._calculate_accessibility_score(
 >>>>>>> origin/replit-agent
@@ -500,7 +519,11 @@ class PlacementOptimizer:
         neighbor_score = min(1.0, min_neighbor_distance / 3.0) if min_neighbor_distance != float('inf') else 1.0
         
 <<<<<<< HEAD
+<<<<<<< HEAD
         return (center_score + boundary_score + neighbor_score) / 3.0
+=======
+        return (center_score + boundary_score + neighbor_score) / 3.0
+>>>>>>> origin/replit-agent
 =======
         return (center_score + boundary_score + neighbor_score) / 3.0
 >>>>>>> origin/replit-agent

@@ -464,6 +464,7 @@ class PlanVisualizer:
             st.error(f"Error calculating statistics: {str(e)}")
             st.info("Some statistics may be unavailable due to data format issues")
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 
 class AdvancedVisualization:
@@ -544,5 +545,7 @@ class AdvancedVisualization:
         except Exception as e:
             st.error(f"Professional plot error: {str(e)}")
             return self.plan_visualizer.create_basic_plot(zones)
+=======
+>>>>>>> origin/replit-agent
 =======
 >>>>>>> origin/replit-agent

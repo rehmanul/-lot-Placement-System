@@ -1,5 +1,8 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/replit-agent
 =======
 >>>>>>> origin/replit-agent
 import numpy as np
@@ -11,12 +14,15 @@ from shapely.ops import unary_union
 import json
 from datetime import datetime
 <<<<<<< HEAD
+<<<<<<< HEAD
 from sklearn.cluster import DBSCAN, KMeans
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 import joblib
+=======
+>>>>>>> origin/replit-agent
 =======
 >>>>>>> origin/replit-agent
 
@@ -28,7 +34,10 @@ class AdvancedRoomClassifier:
     def __init__(self):
         self.models = self._initialize_models()
 <<<<<<< HEAD
+<<<<<<< HEAD
         self.scaler = StandardScaler()
+=======
+>>>>>>> origin/replit-agent
 =======
 >>>>>>> origin/replit-agent
         self.feature_weights = {
@@ -38,6 +47,7 @@ class AdvancedRoomClassifier:
             'perimeter_ratio': 0.15,
             'adjacency_context': 0.25
         }
+<<<<<<< HEAD
 <<<<<<< HEAD
         self.trained = False
 
@@ -169,6 +179,8 @@ class AdvancedRoomClassifier:
         }
 
 =======
+=======
+>>>>>>> origin/replit-agent
 
     def _initialize_models(self):
         """Initialize ensemble models"""
@@ -179,17 +191,23 @@ class AdvancedRoomClassifier:
             'rule_based': self._rule_based_classifier
         }
 
+<<<<<<< HEAD
+>>>>>>> origin/replit-agent
+=======
 >>>>>>> origin/replit-agent
     def batch_classify(self, zones: List[Dict]) -> Dict[int, Dict]:
         """Classify multiple zones using ensemble learning"""
         results = {}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         # Train models if not already trained
         if not self.trained:
             training_results = self.train_models([])
             print(f"Models trained with accuracy: {training_results}")
 
+=======
+>>>>>>> origin/replit-agent
 =======
 >>>>>>> origin/replit-agent
         for i, zone in enumerate(zones):
@@ -236,6 +254,7 @@ class AdvancedRoomClassifier:
 
     def _ensemble_classify(self, features: Dict) -> Tuple[str, float]:
         """Ensemble classification combining multiple approaches"""
+<<<<<<< HEAD
 <<<<<<< HEAD
         predictions = []
         confidences = []
@@ -293,6 +312,8 @@ class AdvancedRoomClassifier:
     def _rule_based_classifier(self, features: Dict) -> Tuple[str, float]:
         """Enhanced rule-based room classification"""
 =======
+=======
+>>>>>>> origin/replit-agent
         # Use rule-based classifier as primary (since ML models are placeholders)
         room_type, confidence = self._rule_based_classifier(features)
 
@@ -301,11 +322,15 @@ class AdvancedRoomClassifier:
 
     def _rule_based_classifier(self, features: Dict) -> Tuple[str, float]:
         """Rule-based room classification"""
+<<<<<<< HEAD
+>>>>>>> origin/replit-agent
+=======
 >>>>>>> origin/replit-agent
         area = features['area']
         aspect_ratio = features['aspect_ratio']
         compactness = features['compactness']
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         # Advanced classification rules
         if aspect_ratio > 4.0 and area < 50:
@@ -329,6 +354,8 @@ class AdvancedRoomClassifier:
         else:
             return "General Space", 0.60
 =======
+=======
+>>>>>>> origin/replit-agent
         # Classification rules
         if aspect_ratio > 3.0 and area < 25:
             return "Corridor", 0.9
@@ -348,6 +375,9 @@ class AdvancedRoomClassifier:
             return "Hall/Auditorium", 0.8
         else:
             return "Unknown", 0.3
+<<<<<<< HEAD
+>>>>>>> origin/replit-agent
+=======
 >>>>>>> origin/replit-agent
 
 class SemanticSpaceAnalyzer:
@@ -359,6 +389,7 @@ class SemanticSpaceAnalyzer:
     def __init__(self):
         self.space_graph = nx.Graph()
         self.semantic_rules = self._load_semantic_rules()
+<<<<<<< HEAD
 <<<<<<< HEAD
         self.clustering_model = DBSCAN(eps=3.0, min_samples=2)
 
@@ -402,6 +433,8 @@ class SemanticSpaceAnalyzer:
                 'minimum_corridor_width': 1.2,
                 'maximum_dead_end_length': 20.0
 =======
+=======
+>>>>>>> origin/replit-agent
 
     def _load_semantic_rules(self) -> Dict:
         """Load semantic rules for space relationships"""
@@ -426,6 +459,9 @@ class SemanticSpaceAnalyzer:
                 'support_spaces': ['Storage', 'Copy Room', 'Server Room'],
                 'circulation': ['Corridor', 'Lobby', 'Reception'],
                 'amenities': ['Kitchen', 'Break Room', 'Bathroom']
+<<<<<<< HEAD
+>>>>>>> origin/replit-agent
+=======
 >>>>>>> origin/replit-agent
             }
         }
@@ -434,6 +470,7 @@ class SemanticSpaceAnalyzer:
         """Build a connected graph representation of spatial relationships"""
         self.space_graph.clear()
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         # Add nodes for each room with comprehensive attributes
         for i, zone in enumerate(zones):
@@ -539,6 +576,8 @@ class SemanticSpaceAnalyzer:
             return 0
         return (4 * math.pi * polygon.area) / (polygon.length ** 2)
 =======
+=======
+>>>>>>> origin/replit-agent
         # Add nodes for each room
         for i, zone in enumerate(zones):
             zone_id = f"Zone_{i}"
@@ -656,6 +695,9 @@ class SemanticSpaceAnalyzer:
         y_coords = [p[1] for p in points]
 
         return (sum(x_coords) / len(x_coords), sum(y_coords) / len(y_coords))
+<<<<<<< HEAD
+>>>>>>> origin/replit-agent
+=======
 >>>>>>> origin/replit-agent
 
     def _calculate_shared_boundary(self, poly1: Polygon, poly2: Polygon) -> float:
@@ -671,6 +713,7 @@ class SemanticSpaceAnalyzer:
         except:
             return 0.0
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     def _calculate_accessibility_between_spaces(self, poly1: Polygon, poly2: Polygon) -> float:
         """Calculate accessibility score between two spaces"""
@@ -791,10 +834,15 @@ class SemanticSpaceAnalyzer:
     def analyze_spatial_relationships(self) -> Dict:
         """Analyze spatial relationships in the built graph"""
 >>>>>>> origin/replit-agent
+=======
+    def analyze_spatial_relationships(self) -> Dict:
+        """Analyze spatial relationships in the built graph"""
+>>>>>>> origin/replit-agent
         if not self.space_graph.nodes():
             return {'error': 'No graph built'}
 
         analysis = {
+<<<<<<< HEAD
 <<<<<<< HEAD
             'graph_stats': self._calculate_graph_statistics(),
             'adjacency_violations': self._find_adjacency_violations(),
@@ -828,6 +876,8 @@ class SemanticSpaceAnalyzer:
         violations = []
         
 =======
+=======
+>>>>>>> origin/replit-agent
             'graph_stats': {
                 'total_nodes': self.space_graph.number_of_nodes(),
                 'total_edges': self.space_graph.number_of_edges(),
@@ -840,6 +890,9 @@ class SemanticSpaceAnalyzer:
         }
 
         # Analyze adjacency rules
+<<<<<<< HEAD
+>>>>>>> origin/replit-agent
+=======
 >>>>>>> origin/replit-agent
         for node in self.space_graph.nodes():
             room_type = self.space_graph.nodes[node]['room_type']
@@ -847,6 +900,7 @@ class SemanticSpaceAnalyzer:
             neighbor_types = [self.space_graph.nodes[n]['room_type'] for n in neighbors]
 
             expected_adjacencies = self.semantic_rules['adjacency_rules'].get(room_type, [])
+<<<<<<< HEAD
 <<<<<<< HEAD
             
             # Check for missing critical adjacencies
@@ -1094,6 +1148,8 @@ class SemanticSpaceAnalyzer:
         
         return recommendations
 =======
+=======
+>>>>>>> origin/replit-agent
             for expected in expected_adjacencies:
                 if expected not in neighbor_types:
                     analysis['adjacency_violations'].append({
@@ -1147,6 +1203,9 @@ class SemanticSpaceAnalyzer:
         circulation_score = min(circulation_ratio * 10, 1.0)  # Ideal 10% circulation
 
         return (connectivity_score * 0.7 + circulation_score * 0.3)
+<<<<<<< HEAD
+>>>>>>> origin/replit-agent
+=======
 >>>>>>> origin/replit-agent
 
 class OptimizationEngine:
@@ -1158,6 +1217,7 @@ class OptimizationEngine:
         self.optimization_methods = {
             'genetic_algorithm': self._genetic_algorithm,
             'simulated_annealing': self._simulated_annealing,
+<<<<<<< HEAD
 <<<<<<< HEAD
             'particle_swarm': self._particle_swarm_optimization,
             'differential_evolution': self._differential_evolution
@@ -1220,6 +1280,8 @@ class OptimizationEngine:
                 if new_efficiency > best_efficiency:
                     best_solution = new_solution.copy()
 =======
+=======
+>>>>>>> origin/replit-agent
             'particle_swarm': self._particle_swarm_optimization
         }
 
@@ -1260,11 +1322,15 @@ class OptimizationEngine:
             if new_efficiency > current_efficiency or np.random.random() < np.exp((new_efficiency - current_efficiency) / temp):
                 current_efficiency = new_efficiency
                 if new_efficiency > best_efficiency:
+<<<<<<< HEAD
+>>>>>>> origin/replit-agent
+=======
 >>>>>>> origin/replit-agent
                     best_efficiency = new_efficiency
 
             temp *= cooling_rate
             iterations += 1
+<<<<<<< HEAD
 <<<<<<< HEAD
             efficiency_history.append(current_efficiency)
 
@@ -1978,6 +2044,8 @@ class AdvancedAIModels:
             'analysis_quality': 'good' if avg_confidence > 0.7 else 'moderate' if avg_confidence > 0.5 else 'low'
         }
 =======
+=======
+>>>>>>> origin/replit-agent
 
         return {
             'total_efficiency': best_efficiency,
@@ -1991,5 +2059,9 @@ class AdvancedAIModels:
 
     def _particle_swarm_optimization(self, zones: List[Dict], params: Dict) -> Dict:
         """Particle swarm optimization (placeholder)"""
+<<<<<<< HEAD
+        return {'total_efficiency': 0.86, 'particles': 30}
+>>>>>>> origin/replit-agent
+=======
         return {'total_efficiency': 0.86, 'particles': 30}
 >>>>>>> origin/replit-agent

@@ -11,6 +11,10 @@ openpyxl>=3.1.0
 reportlab>=4.0.0
 scipy>=1.11.0
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+opencv-python>=4.8.0
+>>>>>>> origin/replit-agent
 =======
 opencv-python>=4.8.0
 >>>>>>> origin/replit-agent
@@ -23,6 +27,10 @@ matplotlib
 networkx
 numpy
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+opencv-python
+>>>>>>> origin/replit-agent
 =======
 opencv-python
 >>>>>>> origin/replit-agent
@@ -40,6 +48,7 @@ streamlit
 xlsxwriter
 =======
 >>>>>>> d9a3dfcdf70c971baab32a146dc15b622ed329ee
+<<<<<<< HEAD
 <<<<<<< HEAD
 ezdxf
 fpdf2
@@ -65,5 +74,7 @@ opencv-python
 opencv-python-headless
 scikit-learn
 ezdxf
+=======
+>>>>>>> origin/replit-agent
 =======
 >>>>>>> origin/replit-agent

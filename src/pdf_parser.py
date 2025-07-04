@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 """
 Advanced PDF Parser for Architectural Plans
@@ -456,6 +457,8 @@ class PDFParser:
         distance = math.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
         return distance <= tolerance
 =======
+=======
+>>>>>>> origin/replit-agent
 import fitz  # PyMuPDF
 from typing import List, Dict, Any
 from shapely.geometry import Polygon
@@ -519,4 +522,7 @@ class PDFParser:
             raise e
 
         return zones
+<<<<<<< HEAD
+>>>>>>> origin/replit-agent
+=======
 >>>>>>> origin/replit-agent

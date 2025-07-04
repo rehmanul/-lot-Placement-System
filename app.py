@@ -1,7 +1,13 @@
 import streamlit as st
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 2b57e5d (Created a checkpoint)
+>>>>>>> origin/replit-agent
+=======
 <<<<<<< HEAD
 =======
 >>>>>>> 2b57e5d (Created a checkpoint)
@@ -13,8 +19,11 @@ from plotly.subplots import make_subplots
 import pandas as pd
 from typing import List, Dict, Any, Tuple, Optional
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
+>>>>>>> origin/replit-agent
+=======
 >>>>>>> origin/replit-agent
 import json
 import math
@@ -43,7 +52,10 @@ st.set_page_config(
     page_title="🏗️ Enterprise Îlot Placement System",
     page_icon="🏗️",
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> origin/replit-agent
 =======
 =======
 >>>>>>> 2b57e5d (Created a checkpoint)
@@ -79,14 +91,23 @@ st.set_page_config(
     page_title="Enterprise Îlot Placement System",
     page_icon="🏗️",
 >>>>>>> 2b57e5d (Created a checkpoint)
+<<<<<<< HEAD
+>>>>>>> origin/replit-agent
+=======
 >>>>>>> origin/replit-agent
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 2b57e5d (Created a checkpoint)
+>>>>>>> origin/replit-agent
+=======
 <<<<<<< HEAD
 =======
 >>>>>>> 2b57e5d (Created a checkpoint)
@@ -98,8 +119,11 @@ st.markdown("""
         background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
         color: white;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
+>>>>>>> origin/replit-agent
+=======
 >>>>>>> origin/replit-agent
         padding: 1rem;
         border-radius: 10px;
@@ -149,7 +173,10 @@ st.markdown("""
         border: none;
         border-radius: 8px;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> origin/replit-agent
 =======
         padding: 2rem;
         border-radius: 10px;
@@ -188,6 +215,9 @@ st.markdown("""
         color: white;
         border: none;
 >>>>>>> 2b57e5d (Created a checkpoint)
+<<<<<<< HEAD
+>>>>>>> origin/replit-agent
+=======
 >>>>>>> origin/replit-agent
         padding: 0.5rem 1rem;
         font-weight: bold;
@@ -195,8 +225,11 @@ st.markdown("""
     }
     .stButton > button:hover {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
+>>>>>>> origin/replit-agent
+=======
 >>>>>>> origin/replit-agent
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0,0,0,0.2);
@@ -1411,8 +1444,11 @@ def main():
 
 if __name__ == "__main__":
 <<<<<<< HEAD
+<<<<<<< HEAD
     main()
 =======
+=======
+>>>>>>> origin/replit-agent
     main()
 =======
 # Main header
@@ -1924,4 +1960,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 >>>>>>> b49860d (Create a collaborative workspace for app ideas and requirements)
+<<<<<<< HEAD
+>>>>>>> origin/replit-agent
+=======
 >>>>>>> origin/replit-agent

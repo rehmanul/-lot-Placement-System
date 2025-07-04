@@ -1,6 +1,10 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> origin/replit-agent
+=======
 <<<<<<< HEAD
 >>>>>>> origin/replit-agent
 # Enterprise Îlot Placement System
@@ -183,8 +187,11 @@ Comprehensive data processing pipeline:
 - Geometric operations for spatial analysis
 - Computer vision for image-based zone detection
 <<<<<<< HEAD
+<<<<<<< HEAD
 - Optimization algorithms for space utilization
 =======
+=======
+>>>>>>> origin/replit-agent
 - Optimization algorithms for space utilization
 =======
 # App Requirements Workspace
@@ -296,4 +303,7 @@ Preferred communication style: Simple, everyday language.
 Changelog:
 - July 03, 2025. Initial setup
 >>>>>>> b49860d (Create a collaborative workspace for app ideas and requirements)
+<<<<<<< HEAD
+>>>>>>> origin/replit-agent
+=======
 >>>>>>> origin/replit-agent

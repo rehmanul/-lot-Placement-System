@@ -1,6 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> b49860d (Create a collaborative workspace for app ideas and requirements)
+>>>>>>> origin/replit-agent
+=======
 <<<<<<< HEAD
 =======
 >>>>>>> b49860d (Create a collaborative workspace for app ideas and requirements)
@@ -10,9 +16,12 @@ modules = ["python-3.11"]
 [nix]
 channel = "stable-24_05"
 <<<<<<< HEAD
+<<<<<<< HEAD
 packages = ["cairo", "ffmpeg-full", "freetype", "geos", "ghostscript", "glibcLocales", "gobject-introspection", "gtk3", "gumbo", "harfbuzz", "jbig2dec", "lcms2", "libGL", "libGLU", "libimagequant", "libjpeg", "libjpeg_turbo", "libtiff", "libwebp", "libxcrypt", "mupdf", "openjpeg", "pkg-config", "qhull", "swig", "tcl", "tk", "xcbuild", "xsimd", "zlib"]
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/replit-agent
 <<<<<<< HEAD
 packages = ["cairo", "ffmpeg-full", "freetype", "geos", "ghostscript", "glibcLocales", "gobject-introspection", "gtk3", "lcms2", "libGL", "libGLU", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "openjpeg", "pkg-config", "qhull", "tcl", "tk", "xsimd", "zlib"]
 =======
@@ -20,6 +29,9 @@ packages = ["cairo", "ffmpeg-full", "freetype", "geos", "ghostscript", "glibcLoc
 =======
 packages = ["freetype", "geos", "glibcLocales", "lcms2", "libGL", "libGLU", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "openjpeg", "tcl", "tk", "zlib"]
 >>>>>>> 2b57e5d (Created a checkpoint)
+<<<<<<< HEAD
+>>>>>>> origin/replit-agent
+=======
 >>>>>>> origin/replit-agent
 
 [deployment]
@@ -37,24 +49,33 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "workflow.run"
 <<<<<<< HEAD
+<<<<<<< HEAD
 args = "Enterprise Ilot System"
 
 [[workflows.workflow]]
 name = "Enterprise Ilot System"
 =======
+=======
+>>>>>>> origin/replit-agent
 args = "Streamlit App"
 
 [[workflows.workflow]]
 name = "Streamlit App"
+<<<<<<< HEAD
+>>>>>>> origin/replit-agent
+=======
 >>>>>>> origin/replit-agent
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 <<<<<<< HEAD
+<<<<<<< HEAD
 args = "streamlit run enterprise_ilot_system.py --server.port 5000"
 waitForPort = 5000
 =======
+=======
+>>>>>>> origin/replit-agent
 args = "streamlit run app.py --server.port 5000"
 waitForPort = 5000
 <<<<<<< HEAD
@@ -83,14 +104,20 @@ args = "streamlit run apps/streamlit_app.py --server.port 8080 --server.address 
 >>>>>>> d9a3dfcdf70c971baab32a146dc15b622ed329ee
 =======
 >>>>>>> b49860d (Create a collaborative workspace for app ideas and requirements)
+<<<<<<< HEAD
+>>>>>>> origin/replit-agent
+=======
 >>>>>>> origin/replit-agent
 
 [[ports]]
 localPort = 5000
 externalPort = 80
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> origin/replit-agent
 <<<<<<< HEAD
 =======
 
@@ -100,4 +127,7 @@ externalPort = 8080
 >>>>>>> d9a3dfcdf70c971baab32a146dc15b622ed329ee
 =======
 >>>>>>> b49860d (Create a collaborative workspace for app ideas and requirements)
+<<<<<<< HEAD
+>>>>>>> origin/replit-agent
+=======
 >>>>>>> origin/replit-agent

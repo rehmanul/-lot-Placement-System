@@ -5,7 +5,10 @@ description = "Add your description here"
 requires-python = ">=3.11"
 dependencies = [
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> origin/replit-agent
     "dxfgrabber>=1.0.1",
     "ezdxf>=1.4.2",
     "numpy>=2.3.1",
@@ -15,6 +18,9 @@ dependencies = [
     "plotly>=6.2.0",
     "reportlab>=4.4.2",
     "shapely>=2.1.1",
+<<<<<<< HEAD
+>>>>>>> origin/replit-agent
+=======
 >>>>>>> origin/replit-agent
     "streamlit>=1.46.1",
 ]

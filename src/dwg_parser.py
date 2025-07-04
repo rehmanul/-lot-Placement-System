@@ -1,8 +1,14 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 """
 Enhanced DWG/DXF Parser - Enterprise Grade
 Supports ALL CAD file formats with advanced recovery
+=======
+"""
+Real DWG/DXF Parser - No Fallback Version
+Only processes actual DWG/DXF files with real geometric data
+>>>>>>> origin/replit-agent
 =======
 """
 Real DWG/DXF Parser - No Fallback Version
@@ -13,8 +19,12 @@ Only processes actual DWG/DXF files with real geometric data
 import tempfile
 import os
 <<<<<<< HEAD
+<<<<<<< HEAD
 import math
 from typing import List, Dict, Any, Optional, Tuple
+=======
+from typing import List, Dict, Any, Optional
+>>>>>>> origin/replit-agent
 =======
 from typing import List, Dict, Any, Optional
 >>>>>>> origin/replit-agent
@@ -23,13 +33,17 @@ import traceback
 try:
     import ezdxf
 <<<<<<< HEAD
+<<<<<<< HEAD
     from ezdxf import recover
+=======
+>>>>>>> origin/replit-agent
 =======
 >>>>>>> origin/replit-agent
     EZDXF_AVAILABLE = True
 except ImportError:
     EZDXF_AVAILABLE = False
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 try:
     import dxfgrabber
@@ -61,6 +75,8 @@ class DWGParser:
 
         try:
 =======
+=======
+>>>>>>> origin/replit-agent
 class DWGParser:
     def __init__(self):
         self.supported_formats = ['.dwg', '.dxf']
@@ -82,12 +98,16 @@ class DWGParser:
 
         try:
             # Create temporary file
+<<<<<<< HEAD
+>>>>>>> origin/replit-agent
+=======
 >>>>>>> origin/replit-agent
             with tempfile.NamedTemporaryFile(suffix=file_ext, delete=False) as temp_file:
                 temp_file.write(file_bytes)
                 temp_file_path = temp_file.name
 
             try:
+<<<<<<< HEAD
 <<<<<<< HEAD
                 zones = []
                 
@@ -97,6 +117,10 @@ class DWGParser:
                 elif file_ext == '.dxf':
                     # Handle DXF files with multiple strategies
                     zones = self._parse_dxf_file(temp_file_path, filename)
+=======
+                # Parse real DWG/DXF file
+                zones = self._parse_real_dwg_dxf(temp_file_path, filename)
+>>>>>>> origin/replit-agent
 =======
                 # Parse real DWG/DXF file
                 zones = self._parse_real_dwg_dxf(temp_file_path, filename)
@@ -111,6 +135,10 @@ class DWGParser:
 
             finally:
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+                # Clean up temp file
+>>>>>>> origin/replit-agent
 =======
                 # Clean up temp file
 >>>>>>> origin/replit-agent
@@ -122,6 +150,7 @@ class DWGParser:
             traceback.print_exc()
             return []
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     def _parse_dwg_file(self, file_path: str, filename: str) -> List[Dict[str, Any]]:
         """Parse DWG files with multiple recovery strategies"""
@@ -257,6 +286,8 @@ class DWGParser:
         # Try to connect LINE entities into polygons
         try:
 =======
+=======
+>>>>>>> origin/replit-agent
     def _parse_real_dwg_dxf(self, file_path: str, filename: str) -> List[Dict[str, Any]]:
         """Parse actual DWG/DXF file using ezdxf"""
         try:
@@ -340,6 +371,9 @@ class DWGParser:
                     continue
 
             # Process LINE entities and try to form closed polygons
+<<<<<<< HEAD
+>>>>>>> origin/replit-agent
+=======
 >>>>>>> origin/replit-agent
             lines = list(msp.query('LINE'))
             if lines:
@@ -347,7 +381,11 @@ class DWGParser:
                 for i, polygon in enumerate(connected_polygons):
                     zone = {
 <<<<<<< HEAD
+<<<<<<< HEAD
                         'zone_id': f"line_polygon_{entities_processed + i}",
+=======
+                        'zone_id': f"line_polygon_{entities_processed}",
+>>>>>>> origin/replit-agent
 =======
                         'zone_id': f"line_polygon_{entities_processed}",
 >>>>>>> origin/replit-agent
@@ -359,6 +397,7 @@ class DWGParser:
                     }
                     zones.append(zone)
                     entities_processed += 1
+<<<<<<< HEAD
 <<<<<<< HEAD
         except Exception as e:
             print(f"Warning: Error connecting lines: {str(e)}")
@@ -642,6 +681,8 @@ class DWGParser:
         except:
             layer_name = ''
 =======
+=======
+>>>>>>> origin/replit-agent
 
             print(f"Real parsing result: {entities_processed} entities processed, {len(zones)} zones created")
             return zones
@@ -654,6 +695,9 @@ class DWGParser:
     def _classify_entity_type(self, entity) -> str:
         """Classify entity type based on layer name and properties"""
         layer_name = entity.dxf.layer.lower() if hasattr(entity.dxf, 'layer') else ''
+<<<<<<< HEAD
+>>>>>>> origin/replit-agent
+=======
 >>>>>>> origin/replit-agent
 
         if 'wall' in layer_name or 'mur' in layer_name:
@@ -682,7 +726,11 @@ class DWGParser:
             return 0.0
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     def _calculate_polygon_area_coords(self, coords: List[Tuple[float, float]]) -> float:
+=======
+    def _calculate_polygon_area_coords(self, coords: List[tuple]) -> float:
+>>>>>>> origin/replit-agent
 =======
     def _calculate_polygon_area_coords(self, coords: List[tuple]) -> float:
 >>>>>>> origin/replit-agent
@@ -699,8 +747,14 @@ class DWGParser:
         return abs(area) / 2.0
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     def _create_circle_points(self, center, radius, num_points=32) -> List[Tuple[float, float]]:
         """Create polygon points approximating a circle"""
+=======
+    def _create_circle_points(self, center, radius, num_points=16) -> List[tuple]:
+        """Create polygon points approximating a circle"""
+        import math
+>>>>>>> origin/replit-agent
 =======
     def _create_circle_points(self, center, radius, num_points=16) -> List[tuple]:
         """Create polygon points approximating a circle"""
@@ -714,6 +768,7 @@ class DWGParser:
             points.append((float(x), float(y)))
         return points
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     def _create_circle_points_coords(self, center_x: float, center_y: float, radius: float, num_points=32) -> List[Tuple[float, float]]:
         """Create circle points from coordinates"""
@@ -778,18 +833,24 @@ class DWGParser:
         
         try:
 =======
+=======
+>>>>>>> origin/replit-agent
     def _connect_lines_to_polygons(self, lines) -> List[List[tuple]]:
         """Connect LINE entities into closed polygons"""
         polygons = []
 
         try:
             # Convert lines to coordinate pairs
+<<<<<<< HEAD
+>>>>>>> origin/replit-agent
+=======
 >>>>>>> origin/replit-agent
             line_segments = []
             for line in lines:
                 start = (float(line.dxf.start.x), float(line.dxf.start.y))
                 end = (float(line.dxf.end.x), float(line.dxf.end.y))
                 line_segments.append((start, end))
+<<<<<<< HEAD
 <<<<<<< HEAD
             
             used_segments = set()
@@ -813,6 +874,8 @@ class DWGParser:
                             continue
                         
 =======
+=======
+>>>>>>> origin/replit-agent
 
             # Simple polygon detection (connect lines that share endpoints)
             used_segments = set()
@@ -838,6 +901,9 @@ class DWGParser:
                             continue
 
                         # Check if segments connect
+<<<<<<< HEAD
+>>>>>>> origin/replit-agent
+=======
 >>>>>>> origin/replit-agent
                         if self._points_close(current_end, other_segment[0], tolerance=0.1):
                             polygon.append(other_segment[1])
@@ -851,6 +917,7 @@ class DWGParser:
                             used_segments.add(j)
                             found_connection = True
                             break
+<<<<<<< HEAD
 <<<<<<< HEAD
                     
                     if not found_connection:
@@ -868,6 +935,8 @@ class DWGParser:
             return polygons
             
 =======
+=======
+>>>>>>> origin/replit-agent
 
                     if not found_connection:
                         break
@@ -885,20 +954,30 @@ class DWGParser:
 
             return polygons
 
+<<<<<<< HEAD
+>>>>>>> origin/replit-agent
+=======
 >>>>>>> origin/replit-agent
         except Exception as e:
             print(f"Warning: Error connecting lines to polygons: {str(e)}")
             return []
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     def _points_close(self, p1: Tuple[float, float], p2: Tuple[float, float], tolerance: float = 0.1) -> bool:
         """Check if two points are close enough to be considered connected"""
         distance = math.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
         return distance <= tolerance
 =======
+=======
+>>>>>>> origin/replit-agent
     def _points_close(self, p1: tuple, p2: tuple, tolerance: float = 0.1) -> bool:
         """Check if two points are close enough to be considered connected"""
         import math
         distance = math.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
+<<<<<<< HEAD
+        return distance <= tolerance
+>>>>>>> origin/replit-agent
+=======
         return distance <= tolerance
 >>>>>>> origin/replit-agent
