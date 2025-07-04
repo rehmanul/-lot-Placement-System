@@ -1171,15 +1171,15 @@ def main():
     
     engine = st.session_state.engine
     
-    # Center the title section at the top
+    # Header section outside margin - centered
     st.markdown("""
-        <div style='text-align: center; margin-bottom: 1.5rem;'>
-            <h1 style='font-size: 2rem; margin-bottom: 0.3rem;'>🏗️ Enterprise Island Placement System</h1>
-            <h3 style='color: #666; font-weight: 400; margin-top: 0; font-size: 1rem;'>Professional Architectural Space Optimization Platform</h3>
+        <div style='position: fixed; top: 0; left: 0; right: 0; z-index: 999; background: white; 
+                    text-align: center; padding: 1rem 0; border-bottom: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
+            <h1 style='font-size: 2rem; margin: 0; color: #2c3e50;'>🏗️ Enterprise Island Placement System</h1>
+            <h3 style='color: #666; font-weight: 400; margin: 0.2rem 0 0 0; font-size: 1rem;'>Professional Architectural Space Optimization Platform</h3>
         </div>
+        <div style='height: 100px;'></div>
     """, unsafe_allow_html=True)
-    
-    st.markdown("---")
     
     # Sidebar for controls
     with st.sidebar:
@@ -1342,6 +1342,16 @@ def main():
                 else:
                     st.error("❌ Place îlots first")
     
+    # Adjust main content positioning (green zone higher)
+    st.markdown("""
+        <style>
+        .main .block-container {
+            padding-top: 0.5rem !important;
+            margin-top: -1rem;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    
     # Main content area
     col1, col2 = st.columns([2, 1])
     
@@ -1449,16 +1459,16 @@ def main():
         st.write(f"- 🟣 **{get_text('pink_ilots', language)}**")
         st.write(f"- ⬜ **{get_text('gray_corridors', language)}**")
     
-    # Footer
-    st.markdown("---")
-    st.markdown(
-        f"<div style='text-align: center; color: #666;'>"
-        f"<small>Enterprise Îlot Placement System v{engine.version} | "
-        f"Build Date: {engine.build_date} | "
-        f"🏢 Professional Architecture Solutions</small>"
-        f"</div>",
-        unsafe_allow_html=True
-    )
+    # Footer section (yellow zone) - centered at bottom
+    st.markdown("""
+        <div style='position: fixed; bottom: 0; left: 0; right: 0; z-index: 999; background: #f8f9fa; 
+                    text-align: center; padding: 0.8rem 0; border-top: 1px solid #ddd; box-shadow: 0 -2px 4px rgba(0,0,0,0.1);'>
+            <small style='color: #666; font-size: 0.85rem;'>
+                Enterprise Îlot Placement System v{} | Build Date: {} | 🏢 Professional Architecture Solutions
+            </small>
+        </div>
+        <div style='height: 60px;'></div>
+    """.format(engine.version, engine.build_date), unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
