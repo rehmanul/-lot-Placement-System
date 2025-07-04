@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Enterprise Îlot Placement System
 
 ## Overview
@@ -181,47 +182,75 @@ Comprehensive data processing pipeline:
 - Optimization algorithms for space utilization
 =======
 # App Requirements Workspace
+=======
+# Enterprise Îlot Placement System
+>>>>>>> 2b57e5d (Created a checkpoint)
 
 ## Overview
 
-This is a Streamlit-based web application designed to help users organize and document app requirements and ideas. The application provides a collaborative workspace for capturing project details, user stories, technical requirements, and other essential project planning information.
+This is an enterprise-grade Streamlit-based web application for professional floor plan analysis and îlot (island/unit) placement optimization. The system enables users to upload floor plans in various formats (DXF, DWG, PDF, images), automatically detect zones (walls, restricted areas, entrances), and generate optimal îlot placements according to user-defined size distributions while respecting spatial constraints.
 
 ## System Architecture
 
 ### Frontend Architecture
-- **Framework**: Streamlit - A Python-based web framework for rapid prototyping and data applications
-- **Architecture Pattern**: Single-page application with session-based state management
-- **UI Components**: Native Streamlit components for forms, text inputs, and interactive elements
-- **State Management**: Streamlit's built-in session state for maintaining user data across interactions
+- **Framework**: Streamlit - Professional web interface for spatial analysis applications
+- **Visualization**: Plotly for interactive 2D/3D floor plan visualization
+- **UI Design**: Enterprise-grade interface with custom CSS styling
+- **State Management**: Session-based state for floor plan data and placement results
 
 ### Backend Architecture
-- **Runtime**: Python-based server-side application
-- **Data Processing**: In-memory data handling with JSON serialization
-- **Session Management**: Streamlit's session state mechanism for user data persistence during active sessions
+- **Runtime**: Python 3.11 with advanced spatial analysis libraries
+- **Spatial Processing**: Shapely for geometric operations and constraint validation
+- **CAD File Support**: ezdxf and dxfgrabber for DXF/DWG file parsing
+- **Optimization Engine**: Custom algorithms for îlot placement with corridor generation
+- **Export Capabilities**: PDF reports, DXF files, and image exports
 
 ## Key Components
 
 ### Core Application (app.py)
-- **Session State Management**: Handles user workspace data persistence during active sessions
-- **Data Export Functionality**: Provides JSON export capabilities for workspace data
-- **Workspace Management**: Includes functionality to clear and reset workspace data
-- **User Interface**: Streamlit-based UI with sidebar navigation and main content area
+- **Floor Plan Parser**: Handles multiple file formats (DXF, DWG, PDF, images)
+- **Zone Detection**: Identifies walls, restricted areas, and entrances/exits
+- **Îlot Placement Engine**: Optimizes placement based on size distributions
+- **Corridor Generation**: Automatically creates corridors between facing îlot rows
+- **Visualization System**: 2D floor plans, 3D views, and analytics dashboards
+- **Export System**: Multiple export formats for professional reporting
 
-### Data Structure
-The application manages the following data fields:
-- Project overview and target audience
-- Core features and user stories
-- Technical and non-functional requirements
-- Constraints, assumptions, and success criteria
-- Timeline, milestones, and additional notes
-- Metadata (creation and export timestamps)
+### Spatial Analysis Features
+- **Zone Classification**:
+  - Walls (MUR) - black zones
+  - Restricted Areas (NO ENTREE) - light blue zones
+  - Entrances/Exits (ENTREE/SORTIE) - red zones
+  - Available Space - green zones
+- **Îlot Size Categories**:
+  - 0-1 m² (small units)
+  - 1-3 m² (medium units)
+  - 3-5 m² (large units)
+  - 5-10 m² (extra-large units)
+- **Constraint Validation**:
+  - Minimum distance from entrances
+  - No overlap with restricted areas
+  - Automatic corridor generation
+  - Space efficiency optimization
+
+- **Îlot Size Categories**:
+  - 0-1 m² (small units)
+  - 1-3 m² (medium units)
+  - 3-5 m² (large units)
+  - 5-10 m² (extra-large units)
+- **Constraint Validation**:
+  - Minimum distance from entrances
+  - No overlap with restricted areas
+  - Automatic corridor generation
+  - Space efficiency optimization
 
 ## Data Flow
 
-1. **User Input**: Users interact with Streamlit components to input project requirements
-2. **Session Storage**: Data is stored in Streamlit's session state for temporary persistence
-3. **Data Export**: Users can export their workspace data as JSON format
-4. **Workspace Management**: Users can clear workspace data when needed
+1. **File Upload**: User uploads floor plan (DXF, DWG, PDF, or image)
+2. **Zone Detection**: System parses file and identifies walls, restricted areas, entrances
+3. **Configuration**: User sets îlot size distribution percentages and corridor settings
+4. **Optimization**: Placement engine generates optimal îlot positions
+5. **Visualization**: Interactive 2D/3D views display results
+6. **Export**: Results can be exported as PDF report, DXF file, or image
 
 ## External Dependencies
 
