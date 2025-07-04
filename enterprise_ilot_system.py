@@ -143,7 +143,7 @@ LANGUAGES = {
 st.set_page_config(
     page_title="Enterprise Îlot Placement System", 
     page_icon="🏗️", 
-    layout="wide",
+    layout="centered",
     initial_sidebar_state="expanded"
 )
 
@@ -175,12 +175,14 @@ class EnterpriseIlotEngine:
             try:
                 doc = ezdxf.readfile(tmp_file_path)
                 st.success("✅ DXF file loaded successfully")
-            except ezdxf.DXFStructureError:
-                doc, _ = recover.readfile(tmp_file_path)
-                st.warning("⚠️ DXF file recovered with structural issues")
             except Exception as e:
-                st.error(f"❌ Cannot read DXF file: {str(e)}")
-                return self._create_enterprise_demo_data()
+                # Try recovery mode
+                try:
+                    doc, _ = recover.readfile(tmp_file_path)
+                    st.warning("⚠️ DXF file recovered with structural issues")
+                except Exception as recovery_error:
+                    st.error(f"❌ Cannot read DXF file: {str(e)}. Using enterprise demo data instead.")
+                    return self._create_enterprise_demo_data()
 
             modelspace = doc.modelspace()
             
@@ -787,26 +789,55 @@ class EnterpriseIlotEngine:
         if not self.ilots:
             return []
         
-        # Use clustering approach
-        from sklearn.cluster import DBSCAN
+        try:
+            # Use clustering approach
+            from sklearn.cluster import DBSCAN
+            
+            # Get Y coordinates
+            y_coords = np.array([[ilot['center'][1]] for ilot in self.ilots])
+            
+            # Cluster by Y coordinate
+            clustering = DBSCAN(eps=3.0, min_samples=2).fit(y_coords)
+            
+            # Group îlots by cluster
+            clusters = {}
+            for i, label in enumerate(clustering.labels_):
+                if label not in clusters:
+                    clusters[label] = []
+                clusters[label].append(self.ilots[i])
+            
+            # Return clusters as rows (exclude noise points with label -1)
+            rows = [cluster for label, cluster in clusters.items() if label != -1]
+            
+            return rows
+        except ImportError:
+            # Fallback to simple Y-coordinate grouping
+            return self._simple_row_detection()
+    
+    def _simple_row_detection(self) -> List[List[Dict]]:
+        """Simple row detection without sklearn"""
+        if not self.ilots:
+            return []
+            
+        # Group by similar Y coordinates
+        tolerance = 3.0
+        rows = []
         
-        # Get Y coordinates
-        y_coords = np.array([[ilot['center'][1]] for ilot in self.ilots])
+        for ilot in self.ilots:
+            y_coord = ilot['center'][1]
+            placed = False
+            
+            for row in rows:
+                row_avg_y = sum(i['center'][1] for i in row) / len(row)
+                if abs(y_coord - row_avg_y) <= tolerance:
+                    row.append(ilot)
+                    placed = True
+                    break
+            
+            if not placed:
+                rows.append([ilot])
         
-        # Cluster by Y coordinate
-        clustering = DBSCAN(eps=3.0, min_samples=2).fit(y_coords)
-        
-        # Group îlots by cluster
-        clusters = {}
-        for i, label in enumerate(clustering.labels_):
-            if label not in clusters:
-                clusters[label] = []
-            clusters[label].append(self.ilots[i])
-        
-        # Return clusters as rows (exclude noise points with label -1)
-        rows = [cluster for label, cluster in clusters.items() if label != -1]
-        
-        return rows
+        return [row for row in rows if len(row) >= 2]
 
     def _create_advanced_corridor(self, row1: List[Dict], row2: List[Dict], 
                                 min_width: float, max_width: float, 
@@ -887,7 +918,7 @@ class EnterpriseIlotEngine:
                     mode='lines',
                     line=dict(color='black', width=4),
                     name='Walls',
-                    showlegend=len(fig.data) == 0,
+                    showlegend=True,
                     hovertemplate='Wall<br>Layer: %{customdata}<extra></extra>',
                     customdata=[wall.get('layer', 'Unknown')]
                 ))
@@ -904,7 +935,7 @@ class EnterpriseIlotEngine:
                     fillcolor='rgba(70, 130, 255, 0.4)',
                     line=dict(color='blue', width=2),
                     name='Restricted Areas',
-                    showlegend=len([t for t in fig.data if 'Restricted' in str(t.name)]) == 0,
+                    showlegend=True,
                     hovertemplate='Restricted Area<br>Type: %{customdata}<extra></extra>',
                     customdata=[area.get('layer', 'Unknown')]
                 ))
@@ -920,7 +951,7 @@ class EnterpriseIlotEngine:
                 line=dict(color='red', width=6),
                 marker=dict(size=8, color='red'),
                 name='Entrances',
-                showlegend=len([t for t in fig.data if 'Entrance' in str(t.name)]) == 0,
+                showlegend=True,
                 hovertemplate='Entrance<br>Layer: %{customdata}<extra></extra>',
                 customdata=[entrance.get('layer', 'Unknown')]
             ))
@@ -1004,7 +1035,7 @@ class EnterpriseIlotEngine:
             showlegend=True,
             hovermode='closest',
             template='plotly_white',
-            height=700,
+            height=490,
             plot_bgcolor='rgba(248, 248, 248, 0.8)',
             paper_bgcolor='white'
         )
@@ -1093,20 +1124,46 @@ def get_text(key: str, language: str = 'en') -> str:
 
 
 def main():
-    # Language selection
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        language = st.selectbox(
-            "🌍 Language / Langue",
-            options=['en', 'fr'],
-            format_func=lambda x: '🇺🇸 English' if x == 'en' else '🇫🇷 Français',
-            key='language_selector'
-        )
-    
-    # Main title
-    st.title(get_text('title', language))
-    st.markdown(f"**{get_text('subtitle', language)}**")
-    st.markdown("---")
+    # Custom CSS to make app 30% smaller and improve layout
+    st.markdown("""
+        <style>
+        .main .block-container {
+            max-width: 70rem;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            padding-left: 2rem;
+            padding-right: 2rem;
+        }
+        
+        .stSelectbox > div > div {
+            font-size: 0.9rem;
+        }
+        
+        .stSlider > div > div {
+            font-size: 0.85rem;
+        }
+        
+        .stMetric {
+            font-size: 0.9rem;
+        }
+        
+        .sidebar .stSelectbox {
+            font-size: 0.85rem;
+        }
+        
+        h1 {
+            font-size: 1.8rem !important;
+        }
+        
+        h2 {
+            font-size: 1.4rem !important;
+        }
+        
+        h3 {
+            font-size: 1.2rem !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
     
     # Initialize session state
     if 'engine' not in st.session_state:
@@ -1114,8 +1171,27 @@ def main():
     
     engine = st.session_state.engine
     
+    # Center the title section at the top
+    st.markdown("""
+        <div style='text-align: center; margin-bottom: 1.5rem;'>
+            <h1 style='font-size: 2rem; margin-bottom: 0.3rem;'>🏗️ Enterprise Island Placement System</h1>
+            <h3 style='color: #666; font-weight: 400; margin-top: 0; font-size: 1rem;'>Professional Architectural Space Optimization Platform</h3>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("---")
+    
     # Sidebar for controls
     with st.sidebar:
+        # Language selection in sidebar
+        language = st.selectbox(
+            "🌍 Language / Langue",
+            options=['en', 'fr'],
+            format_func=lambda x: '🇺🇸 English' if x == 'en' else '🇫🇷 Français',
+            key='language_selector'
+        )
+        
+        st.markdown("---")
         st.header(get_text('config', language))
         
         # File upload
@@ -1140,10 +1216,10 @@ def main():
             st.warning(f"⚠️ Total: {total_pct}% (should be 100%)")
         
         profile = {
-            'small': small_pct,
-            'medium_small': medium_small_pct,
-            'medium': medium_pct,
-            'large': large_pct
+            'small': float(small_pct),
+            'medium_small': float(medium_small_pct),
+            'medium': float(medium_pct),
+            'large': float(large_pct)
         }
         
         # Advanced settings
