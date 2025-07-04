@@ -12,12 +12,15 @@ import traceback
 from pathlib import Path
 
 # Import enhanced modules
-from src.dwg_parser import DWGParser
-from src.enhanced_dwg_parser import EnhancedDWGParser
-from src.pdf_parser import PDFParser
-from src.placement_optimizer import PlacementOptimizer
-from src.advanced_ai_models import AdvancedAIModels
 from src.visualization import AdvancedVisualization
+from src.advanced_ai_models import AdvancedAIModels
+from src.placement_optimizer import PlacementOptimizer
+from src.dwg_parser import DWGParser
+from src.pdf_parser import PDFParser
+from src.caching_system import cache_manager, memory_cache, session_cache
+from src.parallel_processor import parallel_processor
+from src.smart_preprocessing import smart_preprocessor
+from src.progress_manager import smart_progress
 from src.cad_export import CADExporter
 from src.export_utils import ExportManager
 
@@ -116,12 +119,46 @@ def main():
             if st.button("🚀 Process File", type="primary"):
                 process_file(uploaded_file, parsing_mode, enable_ai, enable_3d)
 
+        # Add enterprise branding
+        st.sidebar.markdown("---")
+        st.sidebar.markdown("**🏢 Enterprise Edition**")
+        st.sidebar.markdown("Advanced AI-Powered Analysis")
+
+        # Performance optimization dashboard
+        st.sidebar.markdown("---")
+        st.sidebar.markdown("**⚡ Performance Optimization**")
+
+        # Display cache statistics
+        cache_stats = cache_manager.get_cache_stats()
+        if cache_stats['total_hits'] > 0:
+            st.sidebar.metric("Cache Hit Rate", f"{cache_stats['hit_rate']:.1f}%")
+            st.sidebar.metric("Memory Cache", f"{cache_stats['memory_cache_size']} items")
+
+        # Processing summary
+        smart_progress.display_processing_summary()
+
+        # Optimization controls
+        with st.sidebar.expander("🔧 Optimization Settings"):
+            enable_caching = st.checkbox("Enable Smart Caching", value=True)
+            enable_parallel = st.checkbox("Enable Parallel Processing", value=True)
+            enable_preprocessing = st.checkbox("Enable Smart Preprocessing", value=True)
+
+            if st.button("Clear Cache"):
+                cache_manager.clear_expired_cache()
+                st.success("Cache cleared!")
+
+            if st.button("Optimize Memory"):
+                from src.performance_optimizer import PerformanceOptimizer
+                PerformanceOptimizer.optimize_memory()
+                st.success("Memory optimized!")
+
     # Main content area
     if st.session_state.zones:
         display_analysis_results()
     else:
         display_welcome_screen()
 
+@memory_cache(ttl=1800)  # Cache for 30 minutes
 def process_file(uploaded_file, parsing_mode, enable_ai, enable_3d):
     """Process uploaded file with comprehensive format support"""
 
