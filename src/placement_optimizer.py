@@ -1,3 +1,4 @@
+
 """
 Advanced Placement Optimizer for Furniture and Equipment
 Handles intelligent placement of items within architectural spaces
@@ -41,6 +42,21 @@ class PlacementOptimizer:
                 'orientation_flexible': True
             }
         }
+    
+    def optimize_advanced(self, zones: List[Dict]) -> Dict[str, Any]:
+        """
+        Advanced optimization with default parameters
+        """
+        default_params = {
+            'box_length': 2.0,
+            'box_width': 1.5,
+            'margin': 0.5,
+            'enable_rotation': True,
+            'smart_spacing': True,
+            'placement_type': 'kitchen_island'
+        }
+        
+        return self.optimize_placements(zones, default_params)
     
     def optimize_placements(self, zones: List[Dict], parameters: Dict) -> Dict[str, Any]:
         """
@@ -126,17 +142,25 @@ class PlacementOptimizer:
         
         return {
             'placements': placement_results,
-            'total_items': total_items_placed,
+            'total_boxes': total_items_placed,
             'total_area_utilized': total_area_utilized,
             'space_utilization': min(1.0, space_utilization),
             'placement_efficiency': overall_efficiency,
-            'optimization_details': {
+            'optimization': {
+                'total_efficiency': overall_efficiency,
+                'space_utilization': min(1.0, space_utilization),
+                'placement_quality': overall_efficiency * 0.95,
                 'algorithm': 'Advanced Grid + Smart Positioning',
                 'placement_type': placement_type,
                 'item_dimensions': [item_length, item_width],
                 'clearance_used': min_clearance,
                 'rotation_enabled': allow_rotation,
                 'smart_spacing_enabled': smart_spacing
+            },
+            'parameters': {
+                'box_size': [item_length, item_width],
+                'margin': min_clearance,
+                'allow_rotation': allow_rotation
             }
         }
     
@@ -183,7 +207,7 @@ class PlacementOptimizer:
                 'placement_strategy': preferred_position,
                 'clearance': margin,
                 'zone_area': zone_polygon.area,
-                'accessibility_score': self._calculate_accessibility_score(
+                'suitability_score': self._calculate_accessibility_score(
                     placement, zone_polygon, validated_placements
                 )
             })

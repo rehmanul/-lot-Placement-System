@@ -463,3 +463,83 @@ class PlanVisualizer:
         except Exception as e:
             st.error(f"Error calculating statistics: {str(e)}")
             st.info("Some statistics may be unavailable due to data format issues")
+
+
+class AdvancedVisualization:
+    """
+    Advanced visualization class that integrates multiple visualization components
+    """
+    
+    def __init__(self):
+        self.plan_visualizer = PlanVisualizer()
+        
+    def create_interactive_plot(self, zones: List[Dict], analysis_results: Dict = None) -> go.Figure:
+        """Create interactive plot using the plan visualizer"""
+        try:
+            return self.plan_visualizer.create_interactive_plot(
+                zones, 
+                analysis_results,
+                show_zones=True,
+                show_boxes=True,
+                show_labels=True,
+                color_by_type=True
+            )
+        except Exception as e:
+            st.error(f"Visualization error: {str(e)}")
+            # Return basic plot as fallback
+            return self.plan_visualizer.create_basic_plot(zones)
+    
+    def create_3d_visualization(self, zones: List[Dict], analysis_results: Dict = None) -> go.Figure:
+        """Create 3D visualization"""
+        try:
+            return self.plan_visualizer.create_3d_plot(zones, analysis_results)
+        except Exception as e:
+            st.error(f"3D visualization error: {str(e)}")
+            return go.Figure().add_annotation(text="3D visualization unavailable", x=0.5, y=0.5)
+    
+    def display_advanced_statistics(self, analysis_results: Dict):
+        """Display advanced statistics"""
+        try:
+            self.plan_visualizer.display_statistics(analysis_results)
+        except Exception as e:
+            st.error(f"Statistics display error: {str(e)}")
+            st.info("Statistics unavailable")
+    
+    def create_professional_plot(self, zones: List[Dict], analysis_results: Dict = None) -> go.Figure:
+        """Create professional quality plot"""
+        try:
+            fig = self.plan_visualizer.create_interactive_plot(
+                zones, 
+                analysis_results,
+                show_zones=True,
+                show_boxes=True,
+                show_labels=True,
+                color_by_type=True,
+                show_dimensions=True
+            )
+            
+            # Add professional styling
+            fig.update_layout(
+                title=dict(
+                    text="<b>Professional Architectural Analysis</b>",
+                    x=0.5,
+                    font=dict(size=20, color='#2C3E50')
+                ),
+                plot_bgcolor='white',
+                paper_bgcolor='white',
+                font=dict(family="Arial, sans-serif"),
+                showlegend=True,
+                legend=dict(
+                    orientation="v",
+                    yanchor="top",
+                    y=1,
+                    xanchor="left",
+                    x=1.02
+                )
+            )
+            
+            return fig
+            
+        except Exception as e:
+            st.error(f"Professional plot error: {str(e)}")
+            return self.plan_visualizer.create_basic_plot(zones)
