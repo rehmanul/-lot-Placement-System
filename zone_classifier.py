@@ -58,17 +58,17 @@ class ZoneClassifier:
                         return 'NO_ENTREE'
         
         # Classify based on area and shape characteristics
-        if area < 2.0:  # Very small areas likely restricted
+        if area < 1.0:  # Very small areas likely restricted or structural
             return 'NO_ENTREE'
-        elif area > 100.0:  # Large areas likely available space
+        elif area >= 5.0:  # Areas 5m² and above are definitely available for placement
             return 'AVAILABLE'
         else:
-            # Medium areas - analyze shape
+            # Medium areas (1-5m²) - analyze shape
             aspect_ratio = self._calculate_aspect_ratio(zone)
-            if aspect_ratio > 10:  # Very elongated - likely corridor or wall
+            if aspect_ratio > 15:  # Very elongated - likely corridor or wall
                 return 'MUR'
             else:
-                return 'AVAILABLE'
+                return 'AVAILABLE'  # Default to available for placement
     
     def _calculate_aspect_ratio(self, zone: Dict) -> float:
         """Calculate aspect ratio of zone"""

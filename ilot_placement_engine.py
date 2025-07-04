@@ -85,11 +85,19 @@ class IlotPlacementEngine:
         for zone in zones:
             zone_type = zone.get('zone_type', 'AVAILABLE').upper()
             
-            # Only use zones that are explicitly available for placement
-            if zone_type in ['AVAILABLE', 'MAIN_FLOOR', 'ROOM', 'SPACE']:
+            # Accept zones that are suitable for placement (exclude only restricted areas)
+            excluded_types = ['NO_ENTREE', 'ENTREE_SORTIE', 'MUR', 'WALL', 'ENTRANCE', 'EXIT', 'STAIRS', 'ELEVATOR']
+            
+            # If zone type is not explicitly excluded, consider it available
+            if zone_type not in excluded_types:
                 # Ensure minimum area
                 area = zone.get('area', 0)
                 if area >= 1.0:  # Minimum 1m² for îlot placement
+                    available_zones.append(zone)
+            # Also accept zones explicitly marked as available
+            elif zone_type in ['AVAILABLE', 'MAIN_FLOOR', 'ROOM', 'SPACE', 'OFFICE', 'CHAMBER', 'SALON', 'LIVING']:
+                area = zone.get('area', 0)
+                if area >= 1.0:
                     available_zones.append(zone)
         
         return available_zones
